@@ -6,6 +6,7 @@
 package run.mycode.untiednations.competition.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import run.mycode.untiednations.delegates.Delegate;
@@ -16,6 +17,8 @@ public class Competition {
     private final String[] countryNames;
     private final List<double[]> wealthHistory;
     private final List<boolean[][]> battleHistory;
+    
+    private int round;
 
     /**
      * Enroll a set of countries into a competition
@@ -28,7 +31,8 @@ public class Competition {
         this.wealthHistory = new ArrayList<>();
         this.battleHistory = new ArrayList<>();
         this.countryNames = new String[membershipRoll.size()];
-
+        this.round = 0;
+        
         // Perform a roll call to get the country names
         for (int i = 0; i < delegates.length; i++) {
             countryNames[i] = delegates[i].getCountryName();
@@ -41,6 +45,35 @@ public class Competition {
             wealth[i] = initialWealth;
         }
         wealthHistory.add(wealth);
+    }
+    
+    public void advanceCompetition(int numRounds) {
+        for (int i = 0; i < numRounds; i++) {
+            round++;
+            
+            System.out.println("ROUND " + round + ":");
+            
+            doRound();
+            
+            boolean[][] battles = battleHistory.get(battleHistory.size() - 1);
+            double[] wealth = wealthHistory.get(wealthHistory.size() - 1);
+            
+            for (int j = 0; j < delegates.length; j++) {
+                System.out.print("  " + countryNames[j] + " attacks:");
+                int count = 0;
+                
+                for (int k = 0; k < delegates.length; k++) {
+                    if (battles[j][k]) {
+                        count++;
+                        System.out.print(" " + countryNames[k]);
+                    }
+                }
+                if (count == 0) {
+                    System.out.print(" no one");
+                }
+                System.out.println(" -> Resulting wealth: " + wealth[j]);
+            }
+        }
     }
 
     /**

@@ -10,6 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
+import run.mycode.untiednations.competition.model.Competition;
 import run.mycode.untiednations.delegates.Delegate;
 
 public class StartupController implements Initializable {
@@ -24,7 +25,10 @@ public class StartupController implements Initializable {
     
     @FXML
     private void demoClicked(ActionEvent event) {
-        System.out.println("Demo clicked.");
+        List<Delegate> delegates = memberList.getItems();
+        
+        Competition comp = new Competition(delegates);
+        comp.advanceCompetition(10);
     }
     
     @Override
