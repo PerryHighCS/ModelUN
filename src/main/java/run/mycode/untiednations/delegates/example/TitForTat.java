@@ -3,11 +3,11 @@
  * 
  * @author bdahl
  */
-package run.mycode.untiednations.countries.example;
+package run.mycode.untiednations.delegates.example;
 
 import java.util.ArrayList;
 import java.util.List;
-import run.mycode.untiednations.countries.Delegate;
+import run.mycode.untiednations.delegates.Delegate;
 
 public class TitForTat implements Delegate {
     private List<String> enemies;

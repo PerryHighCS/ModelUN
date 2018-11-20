@@ -19,7 +19,7 @@
  * @author bdahl
  */
 
-package run.mycode.untiednations.countries;
+package run.mycode.untiednations.delegates;
 
 public interface Delegate {
 

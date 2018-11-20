@@ -9,11 +9,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import run.mycode.untiednations.countries.example.GandiLand;
-import run.mycode.untiednations.countries.example.GenghisStan;
-import run.mycode.untiednations.countries.example.Providence;
-import run.mycode.untiednations.countries.example.TitForTat;
-import run.mycode.untiednations.countries.Delegate;
+import run.mycode.untiednations.delegates.example.GandiLand;
+import run.mycode.untiednations.delegates.example.GenghisStan;
+import run.mycode.untiednations.delegates.example.Providence;
+import run.mycode.untiednations.delegates.example.TitForTat;
+import run.mycode.untiednations.delegates.Delegate;
 
 
 public class UntiedNations extends Application {

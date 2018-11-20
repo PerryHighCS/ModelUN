@@ -4,9 +4,9 @@
  * @author bdahl
  */
 
-package run.mycode.untiednations.countries.example;
+package run.mycode.untiednations.delegates.example;
 
-import run.mycode.untiednations.countries.Delegate;
+import run.mycode.untiednations.delegates.Delegate;
 
 public class Providence implements Delegate{
 

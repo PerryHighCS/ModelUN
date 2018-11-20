@@ -10,7 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
-import run.mycode.untiednations.countries.Delegate;
+import run.mycode.untiednations.delegates.Delegate;
 
 public class StartupController implements Initializable {
     

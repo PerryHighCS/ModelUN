@@ -8,7 +8,7 @@ package run.mycode.untiednations.competition.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import run.mycode.untiednations.countries.Delegate;
+import run.mycode.untiednations.delegates.Delegate;
 
 public class Competition {
 
