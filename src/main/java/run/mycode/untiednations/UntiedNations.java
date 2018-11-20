@@ -18,6 +18,11 @@ import run.mycode.untiednations.countries.Delegate;
 
 public class UntiedNations extends Application {
 
+    /**
+     * Display the startup screen to prepare for a new UntiedNations competition.
+     * @param stage the FXML container for the competition startup screen
+     * @throws Exception 
+     */
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/StartupScene.fxml"));
@@ -46,8 +51,12 @@ public class UntiedNations extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    
-    
+        
+    /**
+     * Create a list of the demonstration delegates to the UN
+     * 
+     * @return A list containing the demo delegates
+     */
     private List<Delegate> getDemoMembers() {
         List<Delegate> members = new ArrayList<>();
         
@@ -58,5 +67,4 @@ public class UntiedNations extends Application {
         
         return members;
     }
-
 }
