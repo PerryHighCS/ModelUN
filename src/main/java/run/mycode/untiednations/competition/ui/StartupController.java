@@ -1,4 +1,4 @@
-package run.mycode.untiednations.competition;
+package run.mycode.untiednations.competition.ui;
 
 import java.net.URL;
 import java.util.List;

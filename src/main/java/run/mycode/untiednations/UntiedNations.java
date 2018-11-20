@@ -1,6 +1,6 @@
 package run.mycode.untiednations;
 
-import run.mycode.untiednations.competition.StartupController;
+import run.mycode.untiednations.competition.ui.StartupController;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
