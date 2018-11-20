@@ -30,15 +30,15 @@ This will help explain how wealth is accumulated.
 
 In a peaceful cycle, a country will develop 2 resources due to internal
 manufacturing and trade with another other country. If the country goes to war
-with the other country, the resources the first country will develop through
+with another country, the resources the first country would develop through
 trade with the other country will be lost. For that cycle, the country will 
 only develop 1 resource, arming up for the war. If the other country, however,
 does not simultaneously declare war, the belligerent nation will invade and
-steal the 2 resources the pacifist developed during the time. If both nations
+steal the 2 resources the pacifist develops during the time. If both nations
 were to declare war, the borders would remain secure, but only 1 resource would
 be earned by each.
 
-A table of the resources earned in one cycle based on the actions between two delegates **A** and _B_
+A table of the resources earned in one cycle based on the actions between two delegates **A** and _B_:
 
 <table>
   <tr><td>( <b>A</b>, <i>B</i> )</td><td> <i>Peace</i> </td><td> <i>Attack</i> </td> </tr>  
