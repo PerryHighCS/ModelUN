@@ -7,6 +7,7 @@ package run.mycode.untiednations.delegates.example;
 
 import java.util.ArrayList;
 import java.util.List;
+import run.mycode.untiednations.delegates.Correspondence;
 import run.mycode.untiednations.delegates.Delegate;
 
 public class TitForTat implements Delegate {
@@ -44,5 +45,15 @@ public class TitForTat implements Delegate {
     @Override
     public void reportCurrentWealth(String[] countries, double[] resourceValue) {
         return; // TitForTat doesn't care about your money, only your actions
+    }
+    
+    @Override
+    public List<Correspondence> getMessages() {
+        return null; // TitForTat doesn't communicate
+    }
+
+    @Override
+    public void deliverMessage(Correspondence msg) {
+        return; // TitForTat doesn't communicate
     }
 }

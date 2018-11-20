@@ -6,6 +6,8 @@
 
 package run.mycode.untiednations.delegates.example;
 
+import java.util.List;
+import run.mycode.untiednations.delegates.Correspondence;
 import run.mycode.untiednations.delegates.Delegate;
 
 public class Providence implements Delegate{
@@ -29,5 +31,15 @@ public class Providence implements Delegate{
     @Override
     public void reportCurrentWealth(String[] countries, double[] resourceValue) {
         return; // Providence fights not for money but for glory
+    }
+    
+    @Override
+    public List<Correspondence> getMessages() {
+        return null; // Providence doesn't communicate
+    }
+
+    @Override
+    public void deliverMessage(Correspondence msg) {
+        return; // Providence doesn't communicate
     }
 }

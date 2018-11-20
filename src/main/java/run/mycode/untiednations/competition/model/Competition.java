@@ -6,9 +6,9 @@
 package run.mycode.untiednations.competition.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import run.mycode.untiednations.delegates.Correspondence;
 import run.mycode.untiednations.delegates.Delegate;
 
 public class Competition {
@@ -39,7 +39,7 @@ public class Competition {
         }
 
         // Tally up the initial wealth of each country
-        double initialWealth = delegates.length * 2;
+        double initialWealth = 0;
         double[] wealth = new double[membershipRoll.size()];
         for (int i = 0; i < delegates.length; i++) {
             wealth[i] = initialWealth;
@@ -83,11 +83,19 @@ public class Competition {
         double[] wealth = wealthHistory.get(wealthHistory.size() - 1);
 
         boolean[][] battleRecord = new boolean[delegates.length][delegates.length];
+        
+        List<Correspondence> msgs = new ArrayList<>();
 
-        // Report the current wealth of each country to each other country.
-        // Clone to prevent modification by the member countries.
         for (Delegate d : delegates) {
+            // Report the current wealth of each country to each other country.
+            // Clone to prevent modification by the member countries.
             d.reportCurrentWealth(countryNames.clone(), wealth.clone());
+            List<Correspondence> newMsgs = d.getMessages();
+            
+            // Receive any communication from the delegate
+            if (newMsgs != null && newMsgs.size() > 0) {
+                msgs.addAll(newMsgs);
+            }
         }
         
         // Record each country's hostility towards all other countries
@@ -133,8 +141,22 @@ public class Competition {
             }
         }
         
+        // Deliver any correspondence
+        for (Correspondence msg : msgs) {
+            deliver(msg);
+        }
+        
+        // Save the record of battles and global wealth
         battleHistory.add(battleRecord);
         wealthHistory.add(newWealth);
     }
 
+    private void deliver(Correspondence msg) {
+        for (int i = 0; i < countryNames.length; i++) {
+            String dest = msg.getTo();
+            if (countryNames[i].equals(dest)) {
+                delegates[i].deliverMessage(msg);
+            }
+        }
+    }
 }

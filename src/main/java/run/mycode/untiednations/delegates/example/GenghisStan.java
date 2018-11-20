@@ -5,6 +5,8 @@
  */
 package run.mycode.untiednations.delegates.example;
 
+import java.util.List;
+import run.mycode.untiednations.delegates.Correspondence;
 import run.mycode.untiednations.delegates.Delegate;
 
 public class GenghisStan implements Delegate {
@@ -28,5 +30,14 @@ public class GenghisStan implements Delegate {
     @Override
     public void reportCurrentWealth(String[] countries, double[] resourceValue) {
         return; // Genghis doesn't care about money, only land
+    }
+    @Override
+    public List<Correspondence> getMessages() {
+        return null; // Genghis doesn't communicate
+    }
+
+    @Override
+    public void deliverMessage(Correspondence msg) {
+        return; // Genghis doesn't communicate
     }
 }

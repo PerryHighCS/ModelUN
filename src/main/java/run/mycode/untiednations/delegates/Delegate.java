@@ -1,25 +1,12 @@
 /**
- * The diplomatic interface for a country.
- * 
- * A country in the Untied Nations General Assembly needs to be able perform
- * four operations. The country must be able to declare its name, record the 
- * wealth of all nations, declare war, and receive other countries declarations
- * of war.
- * 
- * The first meeting of the General Assembly starts with a roll call. The 
- * delegates will each declare the name of the country they represent. After the
- * roll call, the current wealth of each country will be tallied and reported to
- * the delegates. Next, a silent, binding poll will be taken in which each 
- * country will record their wish to go to war with each other country. Once the
- * poll is taken, wars will be announced. The meeting will then end.
- * 
- * After all wars are fought, the resource distribution will be tallied and
- * another meeting will be called.
- * 
+ * The diplomatic interface for a country in the ModelUN.
+ *  
  * @author bdahl
  */
 
 package run.mycode.untiednations.delegates;
+
+import java.util.List;
 
 public interface Delegate {
 
@@ -57,4 +44,19 @@ public interface Delegate {
      * @param warDeclared true if the other country declared war in this round
      */
     public void doBattle(String otherCountry, boolean warDeclared);
+    
+    /**
+     * Collect the diplomatic messages this delegate would like to send
+     * Note: messages are collected immediately after the wealth report is made
+     * and will be delivered after battles complete.
+     * @return the Messages to be sent during the round
+     */
+    public List<Correspondence> getMessages();
+    
+    /**
+     * Give the delegate a message from another delegate.
+     * 
+     * @param msg 
+     */
+    public void deliverMessage(Correspondence msg);
 }
