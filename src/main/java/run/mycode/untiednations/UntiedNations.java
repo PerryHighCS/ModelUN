@@ -35,7 +35,7 @@ public class UntiedNations extends Application {
         Scene scene = new Scene(root);
         scene.getStylesheets().add("/styles/Styles.css");
         
-        stage.setTitle("UntiedNations");
+        stage.setTitle("Model UntiedNations");
         stage.setScene(scene);
         stage.show();
     }

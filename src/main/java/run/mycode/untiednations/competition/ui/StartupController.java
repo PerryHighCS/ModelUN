@@ -28,7 +28,7 @@ public class StartupController implements Initializable {
         List<Delegate> delegates = memberList.getItems();
         
         Competition comp = new Competition(delegates);
-        comp.advanceCompetition(10);
+        comp.advanceCompetition(100);
     }
     
     @Override

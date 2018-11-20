@@ -26,9 +26,9 @@
             </VBox>
             <VBox alignment="TOP_CENTER">
                <children>
-                    <Button fx:id="rollButton" onAction="#rollClicked" text="Membership Roll" />
+                    <Button fx:id="rollButton" onAction="#rollClicked" text="Edit Membership Roll" />
                     <Separator prefHeight="20.0" visible="false" />
-                    <Button fx:id="compButton" onAction="#demoClicked" text="Run Competition" />
+                    <Button fx:id="compButton" onAction="#demoClicked" text="Start Competition" />
                </children>
                <padding>
                   <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
