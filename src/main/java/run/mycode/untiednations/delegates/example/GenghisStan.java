@@ -10,10 +10,16 @@ import run.mycode.untiednations.delegates.Correspondence;
 import run.mycode.untiednations.delegates.Delegate;
 
 public class GenghisStan implements Delegate {
-    
+    private int index;
+        
     @Override
     public String getCountryName() {
         return "GenghisStan";
+    }
+    
+    @Override
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     @Override

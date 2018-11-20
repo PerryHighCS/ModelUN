@@ -1,5 +1,6 @@
 /**
- * A secret message from one diplomat to another
+ * A secret message from one diplomat to another.  The format of the message is
+ * unspecified.
  * 
  * @author bdahl
  */
@@ -10,6 +11,12 @@ public class Correspondence {
     private final int to;
     private final String msg;
     
+    /**
+     * Create a message to be passed from one delegate to another
+     * @param from
+     * @param to
+     * @param message 
+     */
     public Correspondence(int from, int to, String message) {
         this.from = from;
         this.to = to;
@@ -24,6 +31,10 @@ public class Correspondence {
         return to;
     }
     
+    /**
+     * Get the message contained in this correspondence.
+     * @return A String message. The format of the message is unspecified.
+     */
     public String getMessage() {
         return msg;
     }

@@ -33,9 +33,11 @@ public class Competition {
         this.countryNames = new String[membershipRoll.size()];
         this.round = 0;
         
-        // Perform a roll call to get the country names
+        // Perform a roll call to get the country names and report the 
+        // delegates' indices
         for (int i = 0; i < delegates.length; i++) {
             countryNames[i] = delegates[i].getCountryName();
+            delegates[i].setIndex(i);
         }
 
         // Tally up the initial wealth of each country

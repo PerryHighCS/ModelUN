@@ -11,10 +11,16 @@ import run.mycode.untiednations.delegates.Correspondence;
 import run.mycode.untiednations.delegates.Delegate;
 
 public class Providence implements Delegate{
-
+    private int index;
+    
     @Override
     public String getCountryName() {
         return "Providence";
+    }
+    
+    @Override
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     @Override

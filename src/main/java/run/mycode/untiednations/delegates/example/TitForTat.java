@@ -11,10 +11,16 @@ import run.mycode.untiednations.delegates.Correspondence;
 import run.mycode.untiednations.delegates.Delegate;
 
 public class TitForTat implements Delegate {
+    private int index;
     private List<Integer> enemies;
     
     public TitForTat() {
         enemies = new ArrayList<>();
+    }
+    
+    @Override
+    public void setIndex(int index) {
+        this.index = index;
     }
     
     @Override

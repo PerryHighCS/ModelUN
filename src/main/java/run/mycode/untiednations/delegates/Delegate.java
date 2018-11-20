@@ -19,6 +19,12 @@ public interface Delegate {
     public String getCountryName();
     
     /**
+     * Report this Delegate's index in all ModelUN lists
+     * @param index this Delegate's ID, and index in the resourceValue list
+     */
+    public void setIndex(int index);
+    
+    /**
      * State the current value of this country's resources
      * 
      * @param resourceValue The current total value of each country's resources
