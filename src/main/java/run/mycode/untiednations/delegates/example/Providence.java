@@ -16,7 +16,7 @@ public class Providence implements Delegate{
     }
 
     @Override
-    public boolean goToWar(String otherCountry, double otherWealth) {
+    public boolean goToWar(String otherCountry) {
         // Attack, don't attack... leave the choice to a higher power.
         return Math.random() >= 0.5;
     }

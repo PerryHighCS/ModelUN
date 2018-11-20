@@ -15,7 +15,7 @@ public class GenghisStan implements Delegate {
     }
 
     @Override
-    public boolean goToWar(String otherCountry, double otherWealth) {
+    public boolean goToWar(String otherCountry) {
         // Genghis Kahn always declares war.
         return true;
     }

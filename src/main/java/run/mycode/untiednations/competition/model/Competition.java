@@ -53,9 +53,55 @@ public class Competition {
 
         // Report the current wealth of each country to each other country.
         // Clone to prevent modification by the member countries.
-        for (Delegate c : delegates) {
-            c.reportCurrentWealth(countryNames.clone(), wealth.clone());
+        for (Delegate d : delegates) {
+            d.reportCurrentWealth(countryNames.clone(), wealth.clone());
         }
+        
+        // Record each country's hostility towards all other countries
+        for (int i = 0; i < delegates.length; i++) {
+            for (int j = 0; j < countryNames.length; j++) {
+                if (i != j) {
+                    battleRecord[i][j] = delegates[i].goToWar(countryNames[j]);
+                }
+            }
+        }
+        
+        double[] newWealth = wealth.clone();
+        
+        // Report each country's attacks and tally the results
+        for (int i = 0; i < countryNames.length; i++) {
+            for (int j = 0; j < i; j++) {
+                // Determine who attacked who
+                boolean iAttacksj = battleRecord[i][j];
+                boolean jAttacksi = battleRecord[j][i];
+                
+                // Report the battles
+                delegates[j].doBattle(countryNames[i], iAttacksj);
+                delegates[i].doBattle(countryNames[j], jAttacksi);
+                
+                // If both countries attack eachother, they each squandered 1 resource
+                if (iAttacksj && jAttacksi) {
+                    newWealth[i] += 1;
+                    newWealth[j] += 1;
+                }
+                // If i attacked j, then i loses 1 resource but gains j's 2 resources
+                else if (iAttacksj) {
+                    newWealth[i] += 3;
+                }
+                // If j attacked i, then j loses 1 resource but gains i's 2 resources
+                else if (jAttacksi) {
+                    newWealth[j] += 3;
+                }
+                // If noone attacks, they both get 2 resources
+                else {
+                    newWealth[i] += 2;
+                    newWealth[j] += 2;
+                }
+            }
+        }
+        
+        battleHistory.add(battleRecord);
+        wealthHistory.add(newWealth);
     }
 
 }

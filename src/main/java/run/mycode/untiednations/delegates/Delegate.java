@@ -44,12 +44,10 @@ public interface Delegate {
      * this round
      * 
      * @param otherCountry The name of the country to challenge
-     * @param otherWealth The other country's current value
      * 
      * @return true if we will go to war with this country, false otherwise
      */
-    public boolean goToWar(String otherCountry, double otherWealth);
-    
+    public boolean goToWar(String otherCountry);
     
     /**
      * Learn whether the other country declared war against this country in this

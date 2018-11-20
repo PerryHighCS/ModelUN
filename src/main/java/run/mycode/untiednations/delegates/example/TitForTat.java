@@ -22,7 +22,7 @@ public class TitForTat implements Delegate {
     }
 
     @Override
-    public boolean goToWar(String otherCountry, double otherWealth) {
+    public boolean goToWar(String otherCountry) {
         // If the other country attacked us last time, we attack them back!
         return (enemies.contains(otherCountry)); 
     }
