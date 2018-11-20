@@ -80,10 +80,11 @@ public class Competition {
      * Run one round of the competition
      */
     public void doRound() {
-        double[] wealth = wealthHistory.get(wealthHistory.size() - 1);
-
-        boolean[][] battleRecord = new boolean[delegates.length][delegates.length];
         
+        // Get the current wealth of all nations
+        double[] wealth = wealthHistory.get(wealthHistory.size() - 1);
+        
+        // Create an empty list to hold the correspondence
         List<Correspondence> msgs = new ArrayList<>();
 
         for (Delegate d : delegates) {
@@ -98,6 +99,25 @@ public class Competition {
             }
         }
         
+        // Poll for battle plans
+        boolean[][] battleRecord = warPoll();
+        
+        // Report battles and distribute wealth based on the battles
+        double[] newWealth = aftermath(wealth, battleRecord);
+        
+        // Deliver any correspondence
+        for (Correspondence msg : msgs) {
+            delegates[msg.getTo()].deliverMessage(msg);
+        }
+        
+        // Save the record of battles and global wealth
+        battleHistory.add(battleRecord);
+        wealthHistory.add(newWealth);
+    }
+    
+    private boolean[][] warPoll() {
+        boolean[][] battleRecord = new boolean[delegates.length][delegates.length];
+        
         // Record each country's hostility towards all other countries
         for (int i = 0; i < delegates.length; i++) {
             for (int j = 0; j < countryNames.length; j++) {
@@ -107,7 +127,11 @@ public class Competition {
             }
         }
         
-        double[] newWealth = wealth.clone();
+        return battleRecord;
+    }
+    
+    private double[] aftermath(double[] oldWealth, boolean[][] battleRecord) {
+        double[] newWealth = oldWealth.clone();
         
         // Report each country's attacks and tally the results
         for (int i = 0; i < countryNames.length; i++) {
@@ -141,13 +165,6 @@ public class Competition {
             }
         }
         
-        // Deliver any correspondence
-        for (Correspondence msg : msgs) {
-            delegates[msg.getTo()].deliverMessage(msg);
-        }
-        
-        // Save the record of battles and global wealth
-        battleHistory.add(battleRecord);
-        wealthHistory.add(newWealth);
-    }
+        return newWealth;
+    } 
 }
