@@ -18,18 +18,18 @@ public class Providence implements Delegate{
     }
 
     @Override
-    public boolean goToWar(String otherCountry) {
+    public boolean goToWar(int otherCountry) {
         // Attack, don't attack... leave the choice to a higher power.
         return Math.random() >= 0.5;
     }
     
     @Override
-    public void doBattle(String otherCountry, boolean warDeclared) {
+    public void doBattle(int otherCountry, boolean warDeclared) {
         return; // Providence doesn't record other's actions
     }
 
     @Override
-    public void reportCurrentWealth(String[] countries, double[] resourceValue) {
+    public void reportCurrentWealth(double[] resourceValue) {
         return; // Providence fights not for money but for glory
     }
     

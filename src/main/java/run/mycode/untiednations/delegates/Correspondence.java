@@ -6,21 +6,21 @@
 package run.mycode.untiednations.delegates;
 
 public class Correspondence {
-    private final String from;
-    private final String to;
+    private final int from;
+    private final int to;
     private final String msg;
     
-    public Correspondence(String from, String to, String message) {
+    public Correspondence(int from, int to, String message) {
         this.from = from;
         this.to = to;
         this.msg = message;
     }
     
-    public String getFrom() {
+    public int getFrom() {
         return from;
     }
     
-    public String getTo() {
+    public int getTo() {
         return to;
     }
     

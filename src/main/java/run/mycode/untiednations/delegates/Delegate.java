@@ -21,10 +21,9 @@ public interface Delegate {
     /**
      * State the current value of this country's resources
      * 
-     * @param countries The names of each of the countries
      * @param resourceValue The current total value of each country's resources
      */
-    public void reportCurrentWealth(String[] countries, double[]resourceValue);
+    public void reportCurrentWealth(double[] resourceValue);
     
     /**
      * State whether this country will go to war with a given other country in 
@@ -34,7 +33,7 @@ public interface Delegate {
      * 
      * @return true if we will go to war with this country, false otherwise
      */
-    public boolean goToWar(String otherCountry);
+    public boolean goToWar(int otherCountry);
     
     /**
      * Learn whether the other country declared war against this country in this
@@ -43,7 +42,7 @@ public interface Delegate {
      * @param otherCountry The name of the country offering a challenge
      * @param warDeclared true if the other country declared war in this round
      */
-    public void doBattle(String otherCountry, boolean warDeclared);
+    public void doBattle(int otherCountry, boolean warDeclared);
     
     /**
      * Collect the diplomatic messages this delegate would like to send

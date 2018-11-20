@@ -18,18 +18,18 @@ public class GandiLand implements Delegate {
     }
     
     @Override
-    public boolean goToWar(String otherCountry) {
+    public boolean goToWar(int otherCountry) {
         // Mohandas Gandhi believes in peace
         return false;
     }
 
     @Override
-    public void doBattle(String otherCountry, boolean warDeclared) {
+    public void doBattle(int otherCountry, boolean warDeclared) {
         return; // Gandi doesn't record other's actions
     }
 
     @Override
-    public void reportCurrentWealth(String[] countries, double[] resourceValue) {
+    public void reportCurrentWealth(double[] resourceValue) {
         return; // Gandi doesn't care about money
     }
 

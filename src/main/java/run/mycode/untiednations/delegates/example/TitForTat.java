@@ -11,7 +11,7 @@ import run.mycode.untiednations.delegates.Correspondence;
 import run.mycode.untiednations.delegates.Delegate;
 
 public class TitForTat implements Delegate {
-    private List<String> enemies;
+    private List<Integer> enemies;
     
     public TitForTat() {
         enemies = new ArrayList<>();
@@ -23,16 +23,16 @@ public class TitForTat implements Delegate {
     }
 
     @Override
-    public boolean goToWar(String otherCountry) {
+    public boolean goToWar(int otherCountry) {
         // If the other country attacked us last time, we attack them back!
         return (enemies.contains(otherCountry)); 
     }
 
     @Override
-    public void doBattle(String otherCountry, boolean warDeclared) {
+    public void doBattle(int otherCountry, boolean warDeclared) {
         if (!warDeclared) {
             // If they didn't declare war, remove them from our enemies list
-            enemies.remove(otherCountry);
+            enemies.remove(Integer.valueOf(otherCountry));  // use Integer.valueOf to remove element rather than element at index
         } 
         
         if (warDeclared && !enemies.contains(otherCountry)) {
@@ -43,7 +43,7 @@ public class TitForTat implements Delegate {
     }
 
     @Override
-    public void reportCurrentWealth(String[] countries, double[] resourceValue) {
+    public void reportCurrentWealth(double[] resourceValue) {
         return; // TitForTat doesn't care about your money, only your actions
     }
     

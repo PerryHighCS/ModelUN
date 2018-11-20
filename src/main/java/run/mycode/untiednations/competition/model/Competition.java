@@ -89,7 +89,7 @@ public class Competition {
         for (Delegate d : delegates) {
             // Report the current wealth of each country to each other country.
             // Clone to prevent modification by the member countries.
-            d.reportCurrentWealth(countryNames.clone(), wealth.clone());
+            d.reportCurrentWealth(wealth.clone());
             List<Correspondence> newMsgs = d.getMessages();
             
             // Receive any communication from the delegate
@@ -102,7 +102,7 @@ public class Competition {
         for (int i = 0; i < delegates.length; i++) {
             for (int j = 0; j < countryNames.length; j++) {
                 if (i != j) {
-                    battleRecord[i][j] = delegates[i].goToWar(countryNames[j]);
+                    battleRecord[i][j] = delegates[i].goToWar(j);
                 }
             }
         }
@@ -117,8 +117,8 @@ public class Competition {
                 boolean jAttacksi = battleRecord[j][i];
                 
                 // Report the battles
-                delegates[j].doBattle(countryNames[i], iAttacksj);
-                delegates[i].doBattle(countryNames[j], jAttacksi);
+                delegates[j].doBattle(i, iAttacksj);
+                delegates[i].doBattle(j, jAttacksi);
                 
                 // If both countries attack eachother, they each squandered 1 resource
                 if (iAttacksj && jAttacksi) {
@@ -143,20 +143,11 @@ public class Competition {
         
         // Deliver any correspondence
         for (Correspondence msg : msgs) {
-            deliver(msg);
+            delegates[msg.getTo()].deliverMessage(msg);
         }
         
         // Save the record of battles and global wealth
         battleHistory.add(battleRecord);
         wealthHistory.add(newWealth);
-    }
-
-    private void deliver(Correspondence msg) {
-        for (int i = 0; i < countryNames.length; i++) {
-            String dest = msg.getTo();
-            if (countryNames[i].equals(dest)) {
-                delegates[i].deliverMessage(msg);
-            }
-        }
     }
 }
