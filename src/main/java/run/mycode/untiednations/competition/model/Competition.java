@@ -49,6 +49,11 @@ public class Competition {
         wealthHistory.add(wealth);
     }
     
+    /**
+     * Perform a given number of rounds of competition
+     * 
+     * @param numRounds the number of rounds to perform
+     */
     public void advanceCompetition(int numRounds) {
         for (int i = 0; i < numRounds; i++) {
             round++;
