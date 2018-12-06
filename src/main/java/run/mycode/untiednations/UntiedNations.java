@@ -27,7 +27,6 @@ public class UntiedNations extends Application {
     public void start(Stage stage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/StartupScene.fxml"));
 
-        
         Parent root = (Parent)fxmlLoader.load();
         StartupController controller = fxmlLoader.<StartupController>getController();
         controller.setMembershipRoll(getDemoMembers());
