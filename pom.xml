@@ -20,8 +20,8 @@
     
     <dependencies>
         <dependency>
-            <groupId>run.mycode</groupId>
-            <artifactId>maps</artifactId>
+            <groupId>com.hoten.delaunay</groupId>
+            <artifactId>java-delaunay</artifactId>
             <version>0.1</version>
         </dependency>  
         
@@ -101,6 +101,7 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <compilerArgument>-Xlint:unchecked</compilerArgument>
                     <compilerArguments>
                         <bootclasspath>${sun.boot.class.path}${path.separator}${java.home}/lib/jfxrt.jar</bootclasspath>
                     </compilerArguments>

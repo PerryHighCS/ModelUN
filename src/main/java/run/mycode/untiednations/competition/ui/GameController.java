@@ -18,10 +18,10 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import run.mycode.politicalmap.PoliticalMap;
 import run.mycode.untiednations.competition.model.GameEvent;
 import run.mycode.untiednations.delegates.Delegate;
 import run.mycode.untiednations.competition.model.Competition;
+import run.mycode.untiednations.map.PoliticalMap;
 
 public class GameController {
     private static final Font TYPE_FONT = Font.loadFont(GameController.class.getResource("/TELETYPE1945-1985.ttf").toExternalForm(), 18);
@@ -105,8 +105,9 @@ public class GameController {
         this.delegates = delegates;
        
         List<String> countryNames = delegates.stream().map(d -> d.getCountryName()).collect(Collectors.toList());
+        
         map = PoliticalMap.createMap(countryNames, (int)mapView.getBoundsInLocal().getWidth());
-        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(), null));
+        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true, null), null));
         
         mapLegend.setItems(FXCollections.observableArrayList(delegates));
     }
