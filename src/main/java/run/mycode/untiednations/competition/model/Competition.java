@@ -14,11 +14,11 @@ import run.mycode.untiednations.delegates.Delegate;
 public class Competition {
 
     private final Delegate[] delegates;
-    private final String[] countryNames;
     private final List<double[]> wealthHistory;
     private final List<boolean[][]> battleHistory;
+    private final List<List<GameEvent>> eventHistory;
     
-    private int round;
+    private int lastRound;
 
     /**
      * Enroll a set of countries into a competition
@@ -30,13 +30,13 @@ public class Competition {
         this.delegates = membershipRoll.toArray(new Delegate[membershipRoll.size()]);
         this.wealthHistory = new ArrayList<>();
         this.battleHistory = new ArrayList<>();
-        this.countryNames = new String[membershipRoll.size()];
-        this.round = 0;
+        this.eventHistory = new ArrayList<>();
+        
+        this.lastRound = 0;
         
         // Perform a roll call to get the country names and report the 
         // delegates' indices
         for (int i = 0; i < delegates.length; i++) {
-            countryNames[i] = delegates[i].getCountryName();
             delegates[i].setIndex(i);
         }
 
@@ -55,39 +55,28 @@ public class Competition {
      * @param numRounds the number of rounds to perform
      */
     public void advanceCompetition(int numRounds) {
-        for (int i = 0; i < numRounds; i++) {
-            round++;
-            
-            System.out.println("ROUND " + round + ":");
-            
+        for (int i = 0; i < numRounds; i++) {            
+            lastRound++;                        
             doRound();
-            
-            boolean[][] battles = battleHistory.get(battleHistory.size() - 1);
-            double[] wealth = wealthHistory.get(wealthHistory.size() - 1);
-            
-            for (int j = 0; j < delegates.length; j++) {
-                System.out.print("  " + countryNames[j] + " attacks:");
-                int count = 0;
-                
-                for (int k = 0; k < delegates.length; k++) {
-                    if (battles[j][k]) {
-                        count++;
-                        System.out.print(" " + countryNames[k]);
-                    }
-                }
-                if (count == 0) {
-                    System.out.print(" no one");
-                }
-                System.out.println(" -> Resulting wealth: " + wealth[j]);
-            }
+        }
+    }
+    
+    /**
+     * Perform a given number of rounds of competition
+     * 
+     * @param round the round number to advance competition to
+     */
+    public void advanceCompetitionTo(int round) {
+        for (int i = lastRound; i <= round; i++) {            
+            lastRound++;                        
+            doRound();
         }
     }
 
     /**
-     * Run one round of the competition
+     * Run one lastRound of the competition
      */
     public void doRound() {
-        
         // Get the current wealth of all nations
         double[] wealth = wealthHistory.get(wealthHistory.size() - 1);
         
@@ -112,14 +101,54 @@ public class Competition {
         // Report battles and distribute wealth based on the battles
         double[] newWealth = aftermath(wealth, battleRecord);
         
+        // Create a register of events for this year
+        List<GameEvent> events = recordEvents(battleRecord);
+        
         // Deliver any correspondence
-        for (Correspondence msg : msgs) {
+        msgs.forEach((msg) -> {
             delegates[msg.getTo()].deliverMessage(msg);
-        }
+            events.add(new GameEvent(delegates[msg.getFrom()],
+                                     delegates[msg.getTo()],
+                                     GameEvent.Action.MESSAGED));
+        });
         
         // Save the record of battles and global wealth
         battleHistory.add(battleRecord);
         wealthHistory.add(newWealth);
+        eventHistory.add(events);
+    }
+    
+    /**
+     * Get the events for a particular lastRound
+     * 
+     * @param round the round number (0 == beginning)
+     * 
+     * @return the list of events for the round. If round is &lt; 0 or
+     *              hasn't been run yet, null is returned.
+     */
+    public List<GameEvent> getEvents(int round) {
+        if (round >= 0 && round < eventHistory.size()) {
+            return eventHistory.get(round);
+        }
+        else {
+            return null;
+        }        
+    }
+    
+    /**
+     * Get the resulting wealth for a particular round
+     * 
+     * @param round the round number (0 == beginning)
+     * @return the list of events for the round. If round is &lt; 0 or
+     *              hasn't been run yet, null is returned.
+     */
+    public double[] getWealth(int round) {
+        if (round >= 0 && round < wealthHistory.size()) {
+            return wealthHistory.get(round);
+        }
+        else {
+            return null;
+        } 
     }
     
     private boolean[][] warPoll() {
@@ -127,7 +156,7 @@ public class Competition {
         
         // Record each country's hostility towards all other countries
         for (int i = 0; i < delegates.length; i++) {
-            for (int j = 0; j < countryNames.length; j++) {
+            for (int j = 0; j < delegates.length; j++) {
                 if (i != j) {
                     battleRecord[i][j] = delegates[i].goToWar(j);
                 }
@@ -141,7 +170,7 @@ public class Competition {
         double[] newWealth = oldWealth.clone();
         
         // Report each country's attacks and tally the results
-        for (int i = 0; i < countryNames.length; i++) {
+        for (int i = 0; i < delegates.length; i++) {
             for (int j = 0; j < i; j++) {
                 // Determine who attacked who
                 boolean iAttacksj = battleRecord[i][j];
@@ -173,5 +202,24 @@ public class Competition {
         }
         
         return newWealth;
-    } 
+    }
+    
+    private List<GameEvent> recordEvents(boolean[][] battles) {
+        List<GameEvent> events = new ArrayList<>();
+        
+        for (int i = 0; i < delegates.length; i++) {
+            for (int j = 0; j < i; j++) {
+                if (battles[i][j]) {
+                    events.add(new GameEvent(delegates[i], delegates[j],
+                                             GameEvent.Action.ATTACK));
+                }
+                else {
+                    events.add(new GameEvent(delegates[i], delegates[j],
+                                             GameEvent.Action.IGNORE));
+                }
+            }
+        }
+        
+        return events;
+    }
 }
