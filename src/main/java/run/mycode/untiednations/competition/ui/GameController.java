@@ -2,6 +2,8 @@ package run.mycode.untiednations.competition.ui;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -68,6 +70,26 @@ public class GameController {
     public void initialize() {
         paperTape.setCellFactory((ListView<GameEvent> list) -> new GameController.EventCell());
         mapLegend.setCellFactory((ListView<Delegate> list) -> new GameController.DelegateCell());
+        
+        mapLegend.getSelectionModel().selectedItemProperty().addListener(
+                (ObservableValue<? extends Delegate> ov, 
+                        Delegate oldValue, Delegate newValue) -> {
+                    mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
+                            newValue.getCountryName()), null));
+        });
+        
+        mapLegend.focusedProperty().addListener(
+                (ObservableValue<? extends Boolean> ov, 
+                        Boolean wasfocused, Boolean isfocused) -> {
+                    if (!isfocused) {
+                        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true, null), null));
+                    }
+                    else {
+                        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
+                            mapLegend.getSelectionModel().getSelectedItem().getCountryName()), null));
+                    }
+        });
+        
     }
     
     @FXML
@@ -146,8 +168,6 @@ public class GameController {
             }
             else {
                 setText(item.getCountryName());
-            
-                double height = (this.getBoundsInLocal().getHeight() * 2) / 3;
                             
                 java.awt.Color color = map.getColor(item.getCountryName());
                 int r = color.getRed();
