@@ -1,5 +1,6 @@
 package run.mycode.untiednations.competition.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javafx.beans.value.ObservableValue;
@@ -20,16 +21,17 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import run.mycode.untiednations.competition.model.GameEvent;
 import run.mycode.untiednations.delegates.Delegate;
 import run.mycode.untiednations.competition.model.Competition;
 import run.mycode.untiednations.map.PoliticalMap;
 
 public class GameController {
-    private static final Font TYPE_FONT = Font.loadFont(GameController.class.getResource("/TELETYPE1945-1985.ttf").toExternalForm(), 18);
-    private static final Font PRINT_FONT = Font.loadFont(GameController.class.getResource("/D3Electronism.TTF").toExternalForm(), 18);
-    private static final Font MODERN_FONT = Font.loadFont(GameController.class.getResource("/SourceCodePro-Regular.ttf").toExternalForm(), 18);
+    private static final double FONT_SIZE = 18;
+    private static final double LEGEND_FONT_SIZE = 14;
+    private static final Font TYPE_FONT = Font.loadFont(GameController.class.getResource("/NewPress.otf").toExternalForm(), FONT_SIZE);
+    private static final Font PRINT_FONT = Font.loadFont(GameController.class.getResource("/D3Electronism.TTF").toExternalForm(), FONT_SIZE);
+    private static final Font MODERN_FONT = Font.loadFont(GameController.class.getResource("/SourceCodePro-Regular.ttf").toExternalForm(), FONT_SIZE);
     private static final int BASE_YEAR = 1945;
     
     private int year;
@@ -44,7 +46,7 @@ public class GameController {
     ListView<GameEvent> paperTape;
     
     @FXML
-    ListView<Delegate> mapLegend;
+    ListView<DelegateInfo> mapLegend;
     
     public GameController() {
         year = 0;
@@ -73,13 +75,19 @@ public class GameController {
     @FXML
     public void initialize() {
         paperTape.setCellFactory((ListView<GameEvent> list) -> new GameController.EventCell());
-        mapLegend.setCellFactory((ListView<Delegate> list) -> new GameController.DelegateCell());
+        mapLegend.setCellFactory((ListView<DelegateInfo> list) -> new GameController.DelegateCell());
         
         mapLegend.getSelectionModel().selectedItemProperty().addListener(
-                (ObservableValue<? extends Delegate> ov, 
-                        Delegate oldValue, Delegate newValue) -> {
-                    mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
-                            newValue.getCountryName()), null));
+                (ObservableValue<? extends DelegateInfo> ov, 
+                        DelegateInfo oldValue, DelegateInfo newValue) -> {
+                    if (newValue != null) {
+                        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
+                            newValue.name), null));
+                    }
+                    else {
+                        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
+                            null), null));
+                    }
         });
         
         mapLegend.focusedProperty().addListener(
@@ -90,10 +98,22 @@ public class GameController {
                     }
                     else {
                         mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
-                            mapLegend.getSelectionModel().getSelectedItem().getCountryName()), null));
+                            mapLegend.getSelectionModel().getSelectedItem().name), null));
                     }
-        });
+        });        
+    }
+    
+    public void setDelegates(List<Delegate> delegates) {
+        this.delegates = delegates;
+        this.comp = new Competition(delegates);
+        this.year = 0;
+       
+        List<String> countryNames = delegates.stream().map(d -> d.getCountryName()).collect(Collectors.toList());
         
+        map = PoliticalMap.createMap(countryNames, (int)mapView.getBoundsInLocal().getWidth());
+        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true, null), null));
+                
+        showYear();
     }
     
     /**
@@ -135,34 +155,30 @@ public class GameController {
         comp.advanceCompetitionTo(year);
         
         showEvents(comp.getEvents(year));
+        updateDelegateList(delegates, year);
     }
     
-    public void setDelegates(List<Delegate> delegates) {
-        this.delegates = delegates;
-        this.comp = new Competition(delegates);
-       
-        List<String> countryNames = delegates.stream().map(d -> d.getCountryName()).collect(Collectors.toList());
+    private void updateDelegateList(List<Delegate> delegates, int year) {
+        List<DelegateInfo> dil = new ArrayList<>();
         
-        map = PoliticalMap.createMap(countryNames, (int)mapView.getBoundsInLocal().getWidth());
-        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true, null), null));
-        
-        mapLegend.setItems(FXCollections.observableArrayList(delegates));
-    }
-    
-    public void runCompetition() {
-        Competition comp = new Competition(delegates);
-        comp.advanceCompetition(NUM_YEARS);
+        for (Delegate d : delegates) {
+            DelegateInfo di = new DelegateInfo();
+            di.name = d.getCountryName();
+            di.wealth = comp.getWealth(di.name, year);
+                    
+            dil.add(di);
+        }
+        mapLegend.setItems(FXCollections.observableArrayList(dil));
     }
     
     private void showEvents(List<GameEvent> events) {
         ObservableList<GameEvent> list = paperTape.getItems();
         list.clear();
         
-        for (GameEvent e : events) {
-            if (e.getAction() != GameEvent.Action.IGNORE) {
-                list.add(e);
-            }
-        }        
+        // Only show items with a message
+        events.stream().filter((e) -> (!e.getAction().text.isEmpty())).forEachOrdered((e) -> {
+            list.add(e);
+        });        
     }
     
     private class EventCell extends ListCell<GameEvent> {
@@ -174,7 +190,7 @@ public class GameController {
             
             if (!empty && item != null) {
                 setPrefWidth(paperTape.getWidth()-2);
-                setText(item.toString());
+                setText(item.toString().toUpperCase());
                 setWrapText(true);
                         
                 if (year < 40) {
@@ -193,9 +209,9 @@ public class GameController {
         }
     }
     
-    private class DelegateCell extends ListCell<Delegate> {
+    private class DelegateCell extends ListCell<DelegateInfo> {
         @Override
-        protected void updateItem(Delegate item, boolean empty) {
+        protected void updateItem(DelegateInfo item, boolean empty) {
             super.updateItem(item, empty);
             
             if (empty || item == null) {
@@ -203,9 +219,15 @@ public class GameController {
                 setGraphic(null);
             }
             else {
-                setText(item.getCountryName());
+                setFont(Font.font(LEGEND_FONT_SIZE));
+                
+                String text = item.name + ":  \uD835\uDD7D";
+                
+                text += String.format("%,.2f", item.wealth);
+                
+                setText(text);
                             
-                java.awt.Color color = map.getColor(item.getCountryName());
+                java.awt.Color color = map.getColor(item.name);
                 int r = color.getRed();
                 int g = color.getGreen();
                 int b = color.getBlue();
@@ -214,5 +236,10 @@ public class GameController {
                 setBackground(new Background(new BackgroundFill(fxColor, CornerRadii.EMPTY, Insets.EMPTY)));
             }
         }
+    }
+    
+    private static class DelegateInfo {
+        public String name;
+        public double wealth;
     }
 }

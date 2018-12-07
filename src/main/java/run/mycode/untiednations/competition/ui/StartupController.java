@@ -38,7 +38,6 @@ public class StartupController {
             
             GameController gc = fxl.<GameController>getController();
             gc.setDelegates(delegates);
-            gc.runCompetition();
             
             Stage stage = new Stage();
             

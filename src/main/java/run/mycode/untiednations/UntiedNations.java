@@ -10,7 +10,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import run.mycode.untiednations.delegates.example.GandiLand;
-import run.mycode.untiednations.delegates.example.GenghisStan;
+import run.mycode.untiednations.delegates.example.GenghiStan;
 import run.mycode.untiednations.delegates.example.Providence;
 import run.mycode.untiednations.delegates.example.TitForTat;
 import run.mycode.untiednations.delegates.Delegate;
@@ -60,7 +60,7 @@ public class UntiedNations extends Application {
         List<Delegate> members = new ArrayList<>();
         
         members.add(new GandiLand());
-        members.add(new GenghisStan());
+        members.add(new GenghiStan());
         members.add(new Providence());
         members.add(new TitForTat());
         

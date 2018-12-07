@@ -9,12 +9,12 @@ import java.util.List;
 import run.mycode.untiednations.delegates.Correspondence;
 import run.mycode.untiednations.delegates.Delegate;
 
-public class GenghisStan implements Delegate {
+public class GenghiStan implements Delegate {
     private int index;
         
     @Override
     public String getCountryName() {
-        return "GenghisStan";
+        return "GenghiStan";
     }
     
     @Override

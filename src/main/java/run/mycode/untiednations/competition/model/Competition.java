@@ -7,16 +7,18 @@ package run.mycode.untiednations.competition.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import run.mycode.untiednations.delegates.Correspondence;
 import run.mycode.untiednations.delegates.Delegate;
 
 public class Competition {
 
     private final Delegate[] delegates;
-    private final List<double[]> wealthHistory;
-    private final List<boolean[][]> battleHistory;
+    private final List<Map<String, Double>> wealthHistory;
     private final List<List<GameEvent>> eventHistory;
+    private final List<boolean[][]> battleHistory;
     
     private int lastRound;
 
@@ -41,12 +43,16 @@ public class Competition {
         }
 
         // Tally up the initial wealth of each country
-        double initialWealth = 0;
-        double[] wealth = new double[membershipRoll.size()];
-        for (int i = 0; i < delegates.length; i++) {
-            wealth[i] = initialWealth;
+        double initialWealth = 5;
+        Map<String, Double> wealth = new HashMap<>();
+        for (Delegate delegate : delegates) {
+            wealth.put(delegate.getCountryName(), initialWealth);
         }
         wealthHistory.add(wealth);
+        
+        // No history for starting year
+        battleHistory.add(null);     
+        eventHistory.add(new ArrayList<>());
     }
     
     /**
@@ -55,9 +61,9 @@ public class Competition {
      * @param numRounds the number of rounds to perform
      */
     public void advanceCompetition(int numRounds) {
-        for (int i = 0; i < numRounds; i++) {            
-            lastRound++;                        
-            doRound();
+        for (int i = 0; i < numRounds; i++) {                       
+            doRound();            
+            lastRound++; 
         }
     }
     
@@ -67,26 +73,32 @@ public class Competition {
      * @param round the round number to advance competition to
      */
     public void advanceCompetitionTo(int round) {
-        for (int i = lastRound; i <= round; i++) {            
-            lastRound++;                        
-            doRound();
+        for (int i = lastRound; i <= round; i++) {                        
+            doRound();            
+            lastRound++;
         }
     }
 
     /**
-     * Run one lastRound of the competition
+     * Run the next round of the competition
      */
     public void doRound() {
         // Get the current wealth of all nations
-        double[] wealth = wealthHistory.get(wealthHistory.size() - 1);
+        Map<String, Double> wealth = wealthHistory.get(wealthHistory.size() - 1);
         
         // Create an empty list to hold the correspondence
         List<Correspondence> msgs = new ArrayList<>();
 
+        double[] wealthArr = new double[delegates.length];
+        
+        for (int i = 0; i < delegates.length; i++) {
+            wealthArr[i] = wealth.get(delegates[i].getCountryName());
+        }
+        
         for (Delegate d : delegates) {
             // Report the current wealth of each country to each other country.
             // Clone to prevent modification by the member countries.
-            d.reportCurrentWealth(wealth.clone());
+            d.reportCurrentWealth(wealthArr.clone());
             List<Correspondence> newMsgs = d.getMessages();
             
             // Receive any communication from the delegate
@@ -99,7 +111,7 @@ public class Competition {
         boolean[][] battleRecord = warPoll();
         
         // Report battles and distribute wealth based on the battles
-        double[] newWealth = aftermath(wealth, battleRecord);
+        wealthHistory.add(aftermath(wealth, battleRecord));
         
         // Create a register of events for this year
         List<GameEvent> events = recordEvents(battleRecord);
@@ -112,14 +124,13 @@ public class Competition {
                                      GameEvent.Action.MESSAGED));
         });
         
-        // Save the record of battles and global wealth
+        // Save the record of battles
         battleHistory.add(battleRecord);
-        wealthHistory.add(newWealth);
         eventHistory.add(events);
     }
     
     /**
-     * Get the events for a particular lastRound
+     * Get the events for a particular round
      * 
      * @param round the round number (0 == beginning)
      * 
@@ -134,21 +145,17 @@ public class Competition {
             return null;
         }        
     }
-    
+        
     /**
-     * Get the resulting wealth for a particular round
+     * Get the resulting wealth for a particular country in a given round
      * 
+     * @param name the name of the country
      * @param round the round number (0 == beginning)
-     * @return the list of events for the round. If round is &lt; 0 or
-     *              hasn't been run yet, null is returned.
+     * @return the resources for the country at the end of the round.
+     *         If round is &lt; 0 or hasn't been run yet, null is returned.
      */
-    public double[] getWealth(int round) {
-        if (round >= 0 && round < wealthHistory.size()) {
-            return wealthHistory.get(round);
-        }
-        else {
-            return null;
-        } 
+    public Double getWealth(String name, int round) {
+        return wealthHistory.get(round).get(name);
     }
     
     private boolean[][] warPoll() {
@@ -157,17 +164,15 @@ public class Competition {
         // Record each country's hostility towards all other countries
         for (int i = 0; i < delegates.length; i++) {
             for (int j = 0; j < delegates.length; j++) {
-                if (i != j) {
-                    battleRecord[i][j] = delegates[i].goToWar(j);
-                }
+                battleRecord[i][j] = delegates[i].goToWar(j);
             }
         }
         
         return battleRecord;
     }
     
-    private double[] aftermath(double[] oldWealth, boolean[][] battleRecord) {
-        double[] newWealth = oldWealth.clone();
+    private Map<String, Double> aftermath(Map<String, Double> oldWealth, boolean[][] battleRecord) {
+        Map<String, Double> newWealth = new HashMap<>(oldWealth);
         
         // Report each country's attacks and tally the results
         for (int i = 0; i < delegates.length; i++) {
@@ -180,25 +185,42 @@ public class Competition {
                 delegates[j].doBattle(i, iAttacksj);
                 delegates[i].doBattle(j, jAttacksi);
                 
+                String iName = delegates[i].getCountryName();
+                String jName = delegates[j].getCountryName();
+                double iWealth = oldWealth.get(iName);
+                double jWealth = oldWealth.get(jName);
+                
                 // If both countries attack eachother, they each squandered 1 resource
-                if (iAttacksj && jAttacksi) {
-                    newWealth[i] += 1;
-                    newWealth[j] += 1;
-                }
+                if (iAttacksj && jAttacksi && j != i) {
+                    newWealth.put(iName, iWealth + 1);
+                    newWealth.put(jName, jWealth + 1);
+                }              
                 // If i attacked j, then i loses 1 resource but gains j's 2 resources
                 else if (iAttacksj) {
-                    newWealth[i] += 3;
+                    newWealth.put(iName, iWealth + 3);
                 }
                 // If j attacked i, then j loses 1 resource but gains i's 2 resources
                 else if (jAttacksi) {
-                    newWealth[j] += 3;
+                    newWealth.put(jName, jWealth + 3);
                 }
                 // If noone attacks, they both get 2 resources
                 else {
-                    newWealth[i] += 2;
-                    newWealth[j] += 2;
+                    newWealth.put(iName, iWealth + 2);
+                    newWealth.put(jName, jWealth + 2);
                 }
             }
+        }
+        
+        // Check for civil war
+        for (int i = 0; i < delegates.length; i++) {
+            boolean iAttacksi = battleRecord[i][i];
+            
+            // If there is a civil war, all resources are lost
+            if (iAttacksi) {
+                delegates[i].doBattle(i, iAttacksi);    // report the battle
+                newWealth.put(delegates[i].getCountryName(), 0d);
+            }
+            
         }
         
         return newWealth;
@@ -207,15 +229,58 @@ public class Competition {
     private List<GameEvent> recordEvents(boolean[][] battles) {
         List<GameEvent> events = new ArrayList<>();
         
+        boolean[][] lastYear = battleHistory.get(lastRound); // Get the battles from the previous year
+        
         for (int i = 0; i < delegates.length; i++) {
-            for (int j = 0; j < i; j++) {
+            for (int j = 0; j < delegates.length; j++) {
                 if (battles[i][j]) {
-                    events.add(new GameEvent(delegates[i], delegates[j],
+                    if (i == j) {
+                        if (lastRound > 0 && lastYear[i][j]) {
+                            events.add(new GameEvent(delegates[i], null,
+                                             GameEvent.Action.CIVILWAR_CONT));
+                        }
+                        else {
+                            events.add(new GameEvent(delegates[i], null,
+                                             GameEvent.Action.CIVILWAR));
+                        }
+                    }
+                    else if (battles[j][i] && i < j) {
+                        if (lastRound > 0 && lastYear[i][j] && lastYear[j][i]) {
+                            events.add(new GameEvent(delegates[i], delegates[j],
+                                             GameEvent.Action.WAR_CONT));
+                        }
+                        else {
+                            events.add(new GameEvent(delegates[i], delegates[j],
+                                             GameEvent.Action.WAR));
+                        }
+                    }
+                    else if (!battles[j][i]) {
+                        if (lastRound > 0 && lastYear[i][j]) {
+                            events.add(new GameEvent(delegates[i], delegates[j],
+                                             GameEvent.Action.ATTACK_CONT));
+                        }
+                        else {
+                            events.add(new GameEvent(delegates[i], delegates[j],
                                              GameEvent.Action.ATTACK));
+                        }
+                    }
                 }
                 else {
-                    events.add(new GameEvent(delegates[i], delegates[j],
-                                             GameEvent.Action.IGNORE));
+                    // If i did not attack j this year and did last year
+                    if (lastRound > 0 && lastYear[i][j]) {
+                        // If there was a war last year, but not this year
+                        if (lastRound > 0 && lastYear[j][i] && !battles[j][i]) {
+                            // The countries declared peace
+                            events.add(new GameEvent(delegates[i], delegates[j],
+                                             GameEvent.Action.PEACE));
+                        }
+                        // Otherwise, if the battle was one-sided last year
+                        else {
+                            // Declare a cease fire
+                            events.add(new GameEvent(delegates[i], delegates[j],
+                                             GameEvent.Action.ATTACK_CEASE));
+                        }
+                    }
                 }
             }
         }
