@@ -1,4 +1,4 @@
-package run.mycode.untiednations.competition.ui;
+package run.mycode.untiednations.competition.ui.game;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,14 +12,20 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -27,7 +33,7 @@ import javafx.util.Duration;
 import run.mycode.untiednations.competition.model.GameEvent;
 import run.mycode.untiednations.delegates.Delegate;
 import run.mycode.untiednations.competition.model.Competition;
-import run.mycode.untiednations.map.PoliticalMap;
+import run.mycode.untiednations.competition.ui.game.map.PoliticalMap;
 
 public class GameController {
     private static final double FONT_SIZE = 18;
@@ -67,7 +73,10 @@ public class GameController {
     private Label statusLabel;
     
     @FXML
-    private ImageView mapView;
+    private AnchorPane mapView;
+    
+    @FXML
+    private Canvas mapOverlay;
     
     @FXML
     private ProgressBar progress; 
@@ -84,27 +93,56 @@ public class GameController {
         mapLegend.getSelectionModel().selectedItemProperty().addListener(
                 (ObservableValue<? extends DelegateInfo> ov, 
                         DelegateInfo oldValue, DelegateInfo newValue) -> {
+                    Image img;
+                    
                     if (newValue != null) {
-                        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
-                            newValue.name, year != 0), null));
+                        img = SwingFXUtils.toFXImage(map.createMap(true, 
+                                                                   newValue.name,
+                                                                   year != 0),
+                                                     null);
+                        
+                        
                     }
                     else {
-                        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
-                            null, year != 0), null));
+                        img = SwingFXUtils.toFXImage(map.createMap(true, null,
+                                                                   year != 0),
+                                                    null);
                     }
+                    
+                    BackgroundImage bi = new BackgroundImage(img,
+                                                 BackgroundRepeat.NO_REPEAT,
+                                                 BackgroundRepeat.NO_REPEAT,
+                                                 BackgroundPosition.DEFAULT,
+                                                 BackgroundSize.DEFAULT);
+                    mapView.setBackground(new Background(bi));
         });
         
         mapLegend.focusedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, 
                         Boolean wasfocused, Boolean isfocused) -> {
+                    Image img;
+                    
                     if (!isfocused || mapLegend.getSelectionModel().getSelectedItem() == null) {
-                        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
-                            null, year != 0), null));
+                        img = SwingFXUtils.toFXImage(map.createMap(true, null, 
+                                                                   year != 0),
+                                null);
                     }
                     else {
-                        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
-                            mapLegend.getSelectionModel().getSelectedItem().name, year != 0), null));
+                        img = SwingFXUtils.toFXImage(map.createMap(true,
+                                                                   mapLegend
+                                                                     .getSelectionModel()
+                                                                     .getSelectedItem()
+                                                                     .name, 
+                                                                   year != 0),
+                                null);
                     }
+                    
+                    BackgroundImage bi = new BackgroundImage(img,
+                                                 BackgroundRepeat.NO_REPEAT,
+                                                 BackgroundRepeat.NO_REPEAT,
+                                                 BackgroundPosition.DEFAULT,
+                                                 BackgroundSize.DEFAULT);
+                    mapView.setBackground(new Background(bi));
         });        
     }
     
@@ -115,10 +153,17 @@ public class GameController {
         back.setDisable(true);
        
         List<String> countryNames = delegates.stream().map(d -> d.getCountryName()).collect(Collectors.toList());
-        
-        map = PoliticalMap.createMap(countryNames, (int)mapView.getBoundsInLocal().getWidth());
-        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true, null), null));
                 
+        map = PoliticalMap.createMap(countryNames, (int)mapOverlay.getWidth());
+        
+        Image img = SwingFXUtils.toFXImage(map.createMap(true, null), null);
+        BackgroundImage bi = new BackgroundImage(img,
+                                                 BackgroundRepeat.NO_REPEAT,
+                                                 BackgroundRepeat.NO_REPEAT,
+                                                 BackgroundPosition.DEFAULT,
+                                                 BackgroundSize.DEFAULT);
+        mapView.setBackground(new Background(bi));
+        
         showYear(true);
     }
     
@@ -170,16 +215,22 @@ public class GameController {
         
         yearLabel.setText("- " + (year + BASE_YEAR) + " -");
         
+        mapLegend.getSelectionModel().clearSelection();
+        Image img;
+        
         if (year == 0) {
-            mapLegend.getSelectionModel().clearSelection();
-            mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
-                null, false), null));
+            img = SwingFXUtils.toFXImage(map.createMap(true, null, false), null);
         }
         else {
-            mapLegend.getSelectionModel().clearSelection();
-            mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
-                null), null));
+            img = SwingFXUtils.toFXImage(map.createMap(true, null), null);
         }
+        
+        BackgroundImage bi = new BackgroundImage(img,
+                                                 BackgroundRepeat.NO_REPEAT,
+                                                 BackgroundRepeat.NO_REPEAT,
+                                                 BackgroundPosition.DEFAULT,
+                                                 BackgroundSize.DEFAULT);
+        mapView.setBackground(new Background(bi));
         
         String statusText;
         

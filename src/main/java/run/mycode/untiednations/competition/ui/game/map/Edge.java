@@ -1,4 +1,4 @@
-package run.mycode.untiednations.map;
+package run.mycode.untiednations.competition.ui.game.map;
 
 import com.hoten.delaunay.geom.Point;
 

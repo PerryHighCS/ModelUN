@@ -1,9 +1,8 @@
 package run.mycode.untiednations.competition.ui;
 
+import run.mycode.untiednations.competition.ui.game.GameController;
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
-import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,7 +13,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import run.mycode.untiednations.delegates.Delegate;
 
 public class StartupController {
@@ -28,7 +26,7 @@ public class StartupController {
     }
     
     @FXML
-    private void demoClicked(ActionEvent event) {
+    private void startClicked(ActionEvent event) {
         List<Delegate> delegates = memberList.getItems();
         
         Parent root;

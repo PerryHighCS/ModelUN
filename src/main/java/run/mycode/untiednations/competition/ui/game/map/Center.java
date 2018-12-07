@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package run.mycode.untiednations.map;
+package run.mycode.untiednations.competition.ui.game.map;
 
 import com.hoten.delaunay.geom.Point;
 import java.util.ArrayList;
