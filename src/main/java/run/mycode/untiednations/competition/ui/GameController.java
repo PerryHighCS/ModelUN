@@ -12,6 +12,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -43,6 +44,11 @@ public class GameController {
     
     private PoliticalMap map;
     
+    @FXML
+    Button back;
+    
+    @FXML
+    Button forward;
     
     @FXML
     ListView<GameEvent> paperTape;
@@ -106,6 +112,7 @@ public class GameController {
         this.delegates = delegates;
         this.comp = new Competition(delegates);
         this.year = 0;
+        back.setDisable(true);
        
         List<String> countryNames = delegates.stream().map(d -> d.getCountryName()).collect(Collectors.toList());
         
@@ -125,6 +132,11 @@ public class GameController {
             year--;
         }
         
+        if (year == 0) {
+            back.setDisable(true);
+        }
+        forward.setDisable(false);
+        
         showYear(true);
     }
     
@@ -134,16 +146,26 @@ public class GameController {
      */
     @FXML
     public void goForward(ActionEvent event) {
-        if (year < NUM_YEARS) {
-            year++;
-        }
+        if (headlineTimer == null) {
+            if (year < NUM_YEARS) {
+                year++;
+            }
+            if (year == NUM_YEARS) {
+                forward.setDisable(true);
+            }
+            back.setDisable(false);
         
-        showYear(false);        
+            showYear(false);
+        }
+        else {
+            showYear(true);
+        }
     }
     
     private void showYear(boolean fast) {
         if (headlineTimer != null) {
             headlineTimer.stop();
+            headlineTimer = null;
         }
         
         yearLabel.setText("- " + (year + BASE_YEAR) + " -");
@@ -187,10 +209,7 @@ public class GameController {
             clearEvents();
             headlineTimer = new Timeline(new KeyFrame(
                     Duration.seconds(0.5),
-                    ae -> {
-                        System.out.println(events.size());
-                        showNextEvent(events, delegates, year);
-                    }));
+                    ae -> showNextEvent(events, delegates, year)));
             headlineTimer.setCycleCount(events.size() + 1);
             headlineTimer.play();
         }
@@ -229,11 +248,14 @@ public class GameController {
         
         if (list.size() < events.size()) {
             list.add(events.get(list.size()));
+            paperTape.scrollTo(list.size() - 1);
             progress.setProgress(list.size() / (double)(events.size()));
         }
         else {
             updateDelegateList(delegates, year);
             progress.setProgress(1.0);
+            headlineTimer.stop();
+            headlineTimer = null;
         }
     }
     
