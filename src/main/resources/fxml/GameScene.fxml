@@ -18,12 +18,12 @@
    <bottom>
       <HBox maxWidth="1.7976931348623157E308" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
-            <Label fx:id="status" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="The UntiedNations is Established" HBox.hgrow="ALWAYS">
+            <Label fx:id="statusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="The UntiedNations is Established" HBox.hgrow="ALWAYS">
                <font>
                   <Font size="20.0" />
                </font>
             </Label>
-            <ProgressBar maxHeight="1.7976931348623157E308" prefWidth="302.0" progress="0.0" />
+            <ProgressBar fx:id="progress" maxHeight="1.7976931348623157E308" prefWidth="302.0" progress="0.0" />
          </children>
          <BorderPane.margin>
             <Insets top="10.0" />

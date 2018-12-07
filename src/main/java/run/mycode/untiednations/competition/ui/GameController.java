@@ -3,6 +3,8 @@ package run.mycode.untiednations.competition.ui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,17 +12,17 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.control.Accordion;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 import run.mycode.untiednations.competition.model.GameEvent;
 import run.mycode.untiednations.delegates.Delegate;
 import run.mycode.untiednations.competition.model.Competition;
@@ -62,15 +64,11 @@ public class GameController {
     private ImageView mapView;
     
     @FXML
-    private TitledPane legendPane;
-    
-    @FXML
-    private TitledPane eventPane;
-    
-    @FXML
-    private Accordion accordion;
-    
+    private ProgressBar progress; 
+        
     private Competition comp;
+    
+    private Timeline headlineTimer;
         
     @FXML
     public void initialize() {
@@ -82,23 +80,24 @@ public class GameController {
                         DelegateInfo oldValue, DelegateInfo newValue) -> {
                     if (newValue != null) {
                         mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
-                            newValue.name), null));
+                            newValue.name, year != 0), null));
                     }
                     else {
                         mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
-                            null), null));
+                            null, year != 0), null));
                     }
         });
         
         mapLegend.focusedProperty().addListener(
                 (ObservableValue<? extends Boolean> ov, 
                         Boolean wasfocused, Boolean isfocused) -> {
-                    if (!isfocused) {
-                        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true, null), null));
+                    if (!isfocused || mapLegend.getSelectionModel().getSelectedItem() == null) {
+                        mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
+                            null, year != 0), null));
                     }
                     else {
                         mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
-                            mapLegend.getSelectionModel().getSelectedItem().name), null));
+                            mapLegend.getSelectionModel().getSelectedItem().name, year != 0), null));
                     }
         });        
     }
@@ -113,7 +112,7 @@ public class GameController {
         map = PoliticalMap.createMap(countryNames, (int)mapView.getBoundsInLocal().getWidth());
         mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true, null), null));
                 
-        showYear();
+        showYear(true);
     }
     
     /**
@@ -126,7 +125,7 @@ public class GameController {
             year--;
         }
         
-        showYear();
+        showYear(true);
     }
     
     /**
@@ -139,23 +138,62 @@ public class GameController {
             year++;
         }
         
-        showYear();        
+        showYear(false);        
     }
     
-    private void showYear() {
+    private void showYear(boolean fast) {
+        if (headlineTimer != null) {
+            headlineTimer.stop();
+        }
+        
         yearLabel.setText("- " + (year + BASE_YEAR) + " -");
         
         if (year == 0) {
-            accordion.setExpandedPane(legendPane);
+            mapLegend.getSelectionModel().clearSelection();
+            mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
+                null, false), null));
         }
         else {
-            accordion.setExpandedPane(eventPane);
+            mapLegend.getSelectionModel().clearSelection();
+            mapView.setImage(SwingFXUtils.toFXImage(map.createMap(true,
+                null), null));
         }
         
-        comp.advanceCompetitionTo(year);
+        String statusText;
         
-        showEvents(comp.getEvents(year));
-        updateDelegateList(delegates, year);
+        switch (year) {
+            case 0:
+                statusText = "The Untied Nations is established";
+                break;
+            case NUM_YEARS:
+                statusText = "The Untied Nations is disbanded";
+                break;
+            default:
+                statusText = "Untied Nations simulation in process";
+                break;
+        }
+        
+        statusLabel.setText(statusText);
+        
+        comp.advanceCompetitionTo(year);
+        List<GameEvent> events = comp.getEvents(year);
+        
+        if (fast) {
+            showEvents(events);
+            updateDelegateList(delegates, year);
+            progress.setProgress(1.0);
+        }
+        else {            
+            clearEvents();
+            headlineTimer = new Timeline(new KeyFrame(
+                    Duration.seconds(0.5),
+                    ae -> {
+                        System.out.println(events.size());
+                        showNextEvent(events, delegates, year);
+                    }));
+            headlineTimer.setCycleCount(events.size() + 1);
+            headlineTimer.play();
+        }
     }
     
     private void updateDelegateList(List<Delegate> delegates, int year) {
@@ -181,6 +219,24 @@ public class GameController {
         });        
     }
     
+    private void clearEvents() {
+        ObservableList<GameEvent> list = paperTape.getItems();
+        list.clear();
+    }
+    
+    private void showNextEvent(List<GameEvent> events, List<Delegate> delegates, int year) {
+        ObservableList<GameEvent> list = paperTape.getItems();
+        
+        if (list.size() < events.size()) {
+            list.add(events.get(list.size()));
+            progress.setProgress(list.size() / (double)(events.size()));
+        }
+        else {
+            updateDelegateList(delegates, year);
+            progress.setProgress(1.0);
+        }
+    }
+    
     private class EventCell extends ListCell<GameEvent> {
         //private Text text;
                      
@@ -193,10 +249,10 @@ public class GameController {
                 setText(item.toString().toUpperCase());
                 setWrapText(true);
                         
-                if (year < 40) {
+                if (year < 34) {
                     setFont(TYPE_FONT);                
                 }
-                else if (year < 65) {
+                else if (year < 61) {
                     setFont(PRINT_FONT);                
                 }
                 else {

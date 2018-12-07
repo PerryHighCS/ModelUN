@@ -29,7 +29,7 @@ public class PoliticalMap {
     public static PoliticalMap createMap(List<String> countryNames, int size) {
             
             /** Number of pieces for the graph. */
-            final int SITES_AMOUNT = 4_000;
+            final int SITES_AMOUNT = 8_000;
 
             /**
              * Each time a relaxation step is performed, the points are left in a slightly more even distribution:
@@ -385,7 +385,12 @@ public class PoliticalMap {
         return img;
     }
     
+    
     public BufferedImage createMap(boolean countryColors, String selectedCountry) {
+        return createMap(countryColors, selectedCountry, true);
+    }
+    
+    public BufferedImage createMap(boolean countryColors, String selectedCountry, boolean showTerrain) {
         int width = (int) bounds.width;
         int height = (int) bounds.height;
 
@@ -393,7 +398,7 @@ public class PoliticalMap {
         Graphics2D g = img.createGraphics();
 
         PoliticalArea selected = countryNames.get(selectedCountry);
-        paint(g, countryColors, selected);
+        paint(g, countryColors, selected, !showTerrain);
 
         return img;
     }
@@ -406,6 +411,11 @@ public class PoliticalMap {
     public void paint(Graphics2D g, boolean countryColors, PoliticalArea hilightCountry) {
         paint(g, true, true, false, false, false, true, true, hilightCountry);
     }
+    
+    public void paint(Graphics2D g, boolean countryColors, PoliticalArea hilightCountry, boolean fillCountries) {
+        paint(g, fillCountries, true, false, false, false, true, true, hilightCountry);
+    }
+
 
     private void drawPolygon(Graphics2D g, Center c, Color color) {
         g.setColor(color);
@@ -476,13 +486,13 @@ public class PoliticalMap {
     }
 
     //also records the area of each voronoi cell
-    public void paint(Graphics2D g, boolean drawBiomes, boolean drawRivers, 
+    public void paint(Graphics2D g, boolean fillCountries, boolean drawRivers, 
             boolean drawSites, boolean drawCorners, boolean drawDelaunay,
             boolean drawVoronoi, boolean countryColors, PoliticalArea selected) {
         final int numSites = centers.size();
 
         Color[] defaultColors = null;
-        if (!drawBiomes) {
+        if (fillCountries) {
             defaultColors = new Color[numSites];
             for (int i = 0; i < defaultColors.length; i++) {
                 defaultColors[i] = new Color(r.nextInt(255), r.nextInt(255), r.nextInt(255));
@@ -496,7 +506,7 @@ public class PoliticalMap {
         
         //draw via triangles
         for (Center c : centers) {
-            drawPolygon(g, c, drawBiomes ? getColor(c, countryColors) : defaultColors[c.index]);
+            drawPolygon(g, c, getColor(c, !fillCountries || c.owner == selected));
             drawPolygon(pixelCenterGraphics, c, new Color(c.index));
         }
 
