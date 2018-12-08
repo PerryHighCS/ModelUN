@@ -92,7 +92,7 @@
       </SplitPane>
    </right>
    <center>
-      <AnchorPane fx:id="mapView" prefHeight="600.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+      <AnchorPane fx:id="mapView" BorderPane.alignment="CENTER">
          <children>
             <Canvas fx:id="mapOverlay" height="600.0" width="600.0" />
          </children>

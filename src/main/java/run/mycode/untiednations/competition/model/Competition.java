@@ -233,54 +233,22 @@ public class Competition {
         
         for (int i = 0; i < delegates.length; i++) {
             for (int j = 0; j < delegates.length; j++) {
-                if (battles[i][j]) {
-                    if (i == j) {
-                        if (lastRound > 0 && lastYear[i][j]) {
-                            events.add(new GameEvent(delegates[i], null,
-                                             GameEvent.Action.CIVILWAR_CONT));
-                        }
-                        else {
-                            events.add(new GameEvent(delegates[i], null,
-                                             GameEvent.Action.CIVILWAR));
-                        }
-                    }
-                    else if (battles[j][i] && i < j) {
-                        if (lastRound > 0 && lastYear[i][j] && lastYear[j][i]) {
-                            events.add(new GameEvent(delegates[i], delegates[j],
-                                             GameEvent.Action.WAR_CONT));
-                        }
-                        else {
-                            events.add(new GameEvent(delegates[i], delegates[j],
-                                             GameEvent.Action.WAR));
-                        }
-                    }
-                    else if (!battles[j][i]) {
-                        if (lastRound > 0 && lastYear[i][j]) {
-                            events.add(new GameEvent(delegates[i], delegates[j],
-                                             GameEvent.Action.ATTACK_CONT));
-                        }
-                        else {
-                            events.add(new GameEvent(delegates[i], delegates[j],
-                                             GameEvent.Action.ATTACK));
-                        }
-                    }
+                GameEvent event;
+                
+                if (lastRound > 0) {
+                    event = GameEvent.eventFor(delegates[i], delegates[j],
+                                               battles[i][j], battles[j][i],
+                                               lastYear[i][j], lastYear[j][i],
+                                               i < j);
                 }
                 else {
-                    // If i did not attack j this year and did last year
-                    if (lastRound > 0 && lastYear[i][j]) {
-                        // If there was a war last year, but not this year
-                        if (lastRound > 0 && lastYear[j][i] && !battles[j][i]) {
-                            // The countries declared peace
-                            events.add(new GameEvent(delegates[i], delegates[j],
-                                             GameEvent.Action.PEACE));
-                        }
-                        // Otherwise, if the battle was one-sided last year
-                        else {
-                            // Declare a cease fire
-                            events.add(new GameEvent(delegates[i], delegates[j],
-                                             GameEvent.Action.ATTACK_CEASE));
-                        }
-                    }
+                    event = GameEvent.eventFor(delegates[i], delegates[j],
+                                               battles[i][j], battles[j][i],
+                                               false, false, i < j);
+                }
+                
+                if (event != null) {
+                    events.add(event);
                 }
             }
         }
