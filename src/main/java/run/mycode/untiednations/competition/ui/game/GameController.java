@@ -1,5 +1,6 @@
 package run.mycode.untiednations.competition.ui.game;
 
+import com.hoten.delaunay.geom.Point;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,6 +13,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -33,6 +35,7 @@ import javafx.util.Duration;
 import run.mycode.untiednations.competition.model.GameEvent;
 import run.mycode.untiednations.delegates.Delegate;
 import run.mycode.untiednations.competition.model.Competition;
+import run.mycode.untiednations.competition.ui.game.actors.Bomber;
 import run.mycode.untiednations.competition.ui.game.map.PoliticalMap;
 
 public class GameController {
@@ -84,9 +87,13 @@ public class GameController {
     private Competition comp;
     
     private Timeline headlineTimer;
+    
+    private MapOverlayController overlayController;
         
     @FXML
     public void initialize() {
+        overlayController = new MapOverlayController(mapOverlay);
+        
         paperTape.setCellFactory((ListView<GameEvent> list) -> new GameController.EventCell());
         mapLegend.setCellFactory((ListView<DelegateInfo> list) -> new GameController.DelegateCell());
         
@@ -264,6 +271,27 @@ public class GameController {
             headlineTimer.setCycleCount(events.size() + 1);
             headlineTimer.play();
         }
+        
+        Delegate i = delegates.get((int)(Math.random() * delegates.size()));
+        Delegate j = i;
+        
+        while (j == i) {
+            j = delegates.get((int)(Math.random() * delegates.size()));
+        }
+        
+        Point iloc = map.getCapitalLocation(i.getCountryName());
+        Point jloc = map.getCapitalLocation(j.getCountryName());
+        Point2D start = new Point2D(iloc.x, iloc.y);
+        Point2D end = new Point2D(jloc.x, jloc.y);
+        
+        System.out.println(i.getCountryName() +  " -> " + j.getCountryName());
+        
+        Bomber b = new Bomber(start);
+        b.moveTo(end, 2000);
+        b.onFinish(() -> overlayController.removeActor(b));
+        overlayController.addActor(b);
+        b.startMoving();
+        
     }
     
     private void updateDelegateList(List<Delegate> delegates, int year) {
