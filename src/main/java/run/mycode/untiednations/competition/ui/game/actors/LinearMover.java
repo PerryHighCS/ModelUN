@@ -1,8 +1,5 @@
 package run.mycode.untiednations.competition.ui.game.actors;
 
-import java.util.concurrent.Callable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 
@@ -37,9 +34,7 @@ public class LinearMover extends Actor {
         this(img, start);
         
         this.start = start;
-        this.end = end;
-        this.delta = start.subtract(end);
-        this.moveTime = moveTimeMillis;
+        this.moveTo(end, moveTimeMillis);
         this.timePassed = 0;
         this.moving = false;
         
@@ -63,11 +58,28 @@ public class LinearMover extends Actor {
         return moving;
     }
     
-    public void moveTo(Point2D dest, long timeMillis) {
+    public final void moveTo(Point2D dest) {
         this.start = getPosition();
         this.end = dest;
-        this.delta = this.start.subtract(this.end);
+        this.delta = this.end.subtract(this.start);
+        this.rotateTo(angleTo(this.delta));
+    }
+    
+    public final void moveTo(Point2D dest, long timeMillis) {
+        this.moveTo(dest);
         this.moveTime = timeMillis;
+    }
+    
+    public double moveDistance() {
+        return this.end.subtract(this.getPosition()).magnitude();
+    }
+    
+    public void moveTime(long timeMillis) {
+        this.moveTime = timeMillis;
+    }
+    
+    private double angleTo(Point2D delta) {
+        return Math.toDegrees(Math.atan2(delta.getY(),  delta.getX()));
     }
     
     @Override

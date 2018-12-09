@@ -16,6 +16,5 @@ public class Bomber extends LinearMover {
     
     public Bomber(Point2D start) {
         super(img, start);
-        System.out.println("*****************" + img + " " + img == null);
     }    
 }

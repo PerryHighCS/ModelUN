@@ -274,24 +274,6 @@ public class GameController {
         
         Delegate i = delegates.get((int)(Math.random() * delegates.size()));
         Delegate j = i;
-        
-        while (j == i) {
-            j = delegates.get((int)(Math.random() * delegates.size()));
-        }
-        
-        Point iloc = map.getCapitalLocation(i.getCountryName());
-        Point jloc = map.getCapitalLocation(j.getCountryName());
-        Point2D start = new Point2D(iloc.x, iloc.y);
-        Point2D end = new Point2D(jloc.x, jloc.y);
-        
-        System.out.println(i.getCountryName() +  " -> " + j.getCountryName());
-        
-        Bomber b = new Bomber(start);
-        b.moveTo(end, 2000);
-        b.onFinish(() -> overlayController.removeActor(b));
-        overlayController.addActor(b);
-        b.startMoving();
-        
     }
     
     private void updateDelegateList(List<Delegate> delegates, int year) {
@@ -326,7 +308,9 @@ public class GameController {
         ObservableList<GameEvent> list = paperTape.getItems();
         
         if (list.size() < events.size()) {
-            list.add(events.get(list.size()));
+            GameEvent next = events.get(list.size()); 
+            list.add(next);
+            startAttack(next);
             paperTape.scrollTo(list.size() - 1);
             progress.setProgress(list.size() / (double)(events.size()));
         }
@@ -336,6 +320,51 @@ public class GameController {
             headlineTimer.stop();
             headlineTimer = null;
         }
+    }
+    
+    /**
+     * Display an attack between countries
+     * @param evt The event that shows the attack that occurred
+     */
+    private void startAttack(GameEvent evt) {
+        GameEvent.Attack attack = evt.getAction().attackDir;
+        
+        Delegate i = evt.getSource();
+        Delegate j = evt.getTarget();
+        
+        if (j != null) {
+            if (attack == GameEvent.Attack.ONEWAY ||
+                attack == GameEvent.Attack.BOTH) {
+                bomber(i, j);
+            }
+            if (attack == GameEvent.Attack.BOTH) {
+                bomber(j, i);
+            }
+        }
+        else if (attack == GameEvent.Attack.SELF) {
+            bomb(i);
+        }
+    }
+    
+    private void bomber(Delegate i, Delegate j) {
+        Point iloc = map.getCapitalLocation(i.getCountryName());
+        Point2D start = new Point2D(iloc.x, iloc.y);
+        
+        Point jloc = map.getCapitalLocation(j.getCountryName());
+        Point2D end = new Point2D(jloc.x, jloc.y);
+
+        Bomber b = new Bomber(start);
+        b.moveTo(end);
+        b.moveTime((long)(b.moveDistance() * 15));
+        b.onFinish(() -> overlayController.removeActor(b));
+        overlayController.addActor(b);
+        b.startMoving();
+    }
+    
+    private void bomb(Delegate d) {
+        Point loc = map.getCapitalLocation(d.getCountryName());
+        Point2D pos = new Point2D(loc.x, loc.y);
+        
     }
     
     private class EventCell extends ListCell<GameEvent> {

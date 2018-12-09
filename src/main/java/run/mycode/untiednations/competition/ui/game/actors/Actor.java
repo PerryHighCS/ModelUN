@@ -12,6 +12,8 @@ public abstract class Actor {
     private Point2D pos;
     private double rotation;
     private Image img;
+    private double halfWidth;
+    private double halfHeight;
     
     public Actor() {
         
@@ -19,10 +21,14 @@ public abstract class Actor {
     
     public Actor(Image img) {
         this.img = img;
+        this.halfWidth = img.getWidth() / 2;
+        this.halfHeight = img.getHeight() / 2;
     }
     
     public final void setImage(Image img) {
         this.img = img;
+        this.halfWidth = img.getWidth() / 2;
+        this.halfHeight = img.getHeight() / 2;
     }
     
     public final void draw(GraphicsContext g) {
@@ -31,12 +37,12 @@ public abstract class Actor {
             if (rotation != 0) {
                 g.save();
                 g.translate(pos.getX(), pos.getY());
-                g.rotate(rotation);                
+                g.rotate(rotation);
+                g.drawImage(img, -halfWidth, -halfHeight);
                 g.restore();
-                g.drawImage(img, -img.getWidth(), -img.getHeight());
             }
             else {                
-                g.drawImage(img, pos.getX() - img.getWidth(), pos.getY() - img.getHeight());
+                g.drawImage(img, pos.getX() - halfWidth, pos.getY() - halfHeight);
             }
         }
     }

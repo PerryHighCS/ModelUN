@@ -4,23 +4,29 @@ import run.mycode.untiednations.delegates.Delegate;
 
 public class GameEvent {
     public static enum Action {
-        ATTACK("%s attacked %s"),
-        ATTACK_CONT("%s maintains its attack on %s"),
-        ATTACK_CEASE("%s declares a ceasefire in its conflict with %s"),
-        PEACE("%s and %s declare peace"),
-        PEACE_CONT(""),
-        WAR("%s and %s go to war"),
-        WAR_CONT("%s and %s continue their war"),
-        MESSAGED("%s sent a secret message to %s"),
-        CIVILWAR("%s erupts in civil war!"),
-        CIVILWAR_CONT("%s continues its civil war"),
-        CIVILWAR_CEASE("Civil war in %s ends");
+        ATTACK("%s attacked %s", Attack.ONEWAY),
+        ATTACK_CONT("%s maintains its attack on %s", Attack.ONEWAY),
+        ATTACK_CEASE("%s declares a ceasefire in its conflict with %s", Attack.NONE),
+        PEACE("%s and %s declare peace", Attack.NONE),
+        PEACE_CONT("", Attack.NONE),
+        WAR("%s and %s go to war", Attack.BOTH),
+        WAR_CONT("%s and %s continue their war", Attack.BOTH),
+        MESSAGED("%s sent a secret message to %s", Attack.NONE),
+        CIVILWAR("%s erupts in civil war!", Attack.SELF),
+        CIVILWAR_CONT("%s continues its civil war", Attack.SELF),
+        CIVILWAR_CEASE("Civil war in %s ends", Attack.NONE);
         
         public String text;
+        public Attack attackDir;
         
-        Action(String text) {
+        Action(String text, Attack dir) {
             this.text = text;
+            this.attackDir = dir;
         }
+    }
+    
+    public static enum Attack {
+        NONE, ONEWAY, BOTH, SELF
     }
     
     private final Delegate target;
