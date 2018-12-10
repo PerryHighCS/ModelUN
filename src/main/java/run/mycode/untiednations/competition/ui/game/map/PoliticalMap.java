@@ -211,7 +211,7 @@ public class PoliticalMap {
     }
     
     private Color getColor(Center p, boolean countryColors) {
-        if (countryColors && p.owner != null) {
+        if (countryColors && p.owner != null && !p.water) {
             return p.owner.color;
         }
         return ((Biome) p.biome).color;
@@ -314,8 +314,10 @@ public class PoliticalMap {
     
     private void expand(PoliticalArea pa, List<Center> land, Random r) {
         // Find a landmass in the country
-        for (int j = 0; j < pa.land.size(); j++) {
-            Center c = pa.land.get(j);
+        List<Center> taken = new ArrayList<>(pa.land);
+        
+        while (!taken.isEmpty()) {
+            Center c = taken.get(r.nextInt(taken.size()));
             
             if (!c.surrounded) {
                 List<Center> neighbors = c.neighbors;
@@ -323,16 +325,19 @@ public class PoliticalMap {
                 for (int i = 0; i < neighbors.size(); i++) {
                     Center candidate = neighbors.get(i);
                     if (candidate.owner == null &&
-                        !candidate.ocean && !candidate.water) {
+                        !candidate.ocean) {
 
                         candidate.owner = pa;
                         land.remove(candidate);
                         pa.land.add(candidate);
+                        
                         return;
                     }
                 }
                 c.surrounded = true;
             }
+            
+            taken.remove(c);
         }
     }
 

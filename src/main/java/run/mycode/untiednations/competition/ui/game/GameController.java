@@ -37,7 +37,6 @@ import run.mycode.untiednations.delegates.Delegate;
 import run.mycode.untiednations.competition.model.Competition;
 import run.mycode.untiednations.competition.ui.game.actors.Bomber;
 import run.mycode.untiednations.competition.ui.game.actors.Explosion;
-import run.mycode.untiednations.competition.ui.game.map.Center;
 import run.mycode.untiednations.competition.ui.game.map.PoliticalMap;
 
 public class GameController {
@@ -201,10 +200,10 @@ public class GameController {
     @FXML
     public void goForward(ActionEvent event) {
         if (headlineTimer == null) {
-            if (year < NUM_YEARS) {
+            if (year <= NUM_YEARS) {
                 year++;
             }
-            if (year == NUM_YEARS) {
+            if (year > NUM_YEARS) {
                 forward.setDisable(true);
             }
             back.setDisable(false);

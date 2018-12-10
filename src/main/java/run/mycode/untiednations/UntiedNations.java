@@ -35,6 +35,7 @@ public class UntiedNations extends Application {
         scene.getStylesheets().add("/styles/Styles.css");
         
         stage.setTitle("Model UntiedNations");
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }

@@ -176,7 +176,12 @@ public class Competition {
      *         If round is &lt; 0 or hasn't been run yet, null is returned.
      */
     public Double getWealth(String name, int round) {
-        return wealthHistory.get(round).get(name);
+        if (round < this.MAX_ROUND) {
+            return wealthHistory.get(round).get(name);
+        }
+        else {
+            return wealthHistory.get(this.MAX_ROUND).get(name);
+        }
     }
     
     private boolean[][] warPoll() {
