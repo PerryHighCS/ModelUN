@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ProgressBar?>
@@ -18,11 +19,12 @@
    <bottom>
       <HBox maxWidth="1.7976931348623157E308" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
-            <Label fx:id="statusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="The UntiedNations is Established" HBox.hgrow="ALWAYS">
+            <Label fx:id="statusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="30.0" prefWidth="314.0" text="The UntiedNations is Established" HBox.hgrow="ALWAYS">
                <font>
                   <Font size="20.0" />
                </font>
             </Label>
+            <CheckBox fx:id="autoContinue" maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="Auto Continue" />
             <ProgressBar fx:id="progress" maxHeight="1.7976931348623157E308" prefWidth="302.0" progress="0.0" />
          </children>
          <BorderPane.margin>

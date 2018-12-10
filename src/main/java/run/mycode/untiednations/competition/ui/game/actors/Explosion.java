@@ -1,12 +1,13 @@
 package run.mycode.untiednations.competition.ui.game.actors;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
+import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
 
 /**
  *
@@ -14,9 +15,11 @@ import javafx.scene.media.MediaPlayer;
  */
 public class Explosion extends AnimatedActor {
     private static final List<Image> FRAMES = loadFrames();
-    private static final Media sound = new Media(Explosion.class.getResource("/sounds/Explosion.mp3").toExternalForm());
+    private static final String SOUND = 
+            Explosion.class.getResource("/sounds/Explosion.mp3").toString();
     
-    private MediaPlayer mediaPlayer;
+    private static final AudioClip[] PLAYER_POOL = mediaPlayerPool(3);
+    private int player = -1;
     
     public Explosion(Point2D pos) {
         super(pos, FRAMES, 66, false);
@@ -32,14 +35,30 @@ public class Explosion extends AnimatedActor {
         return frms;
     }
     
-    @Override
-    public void playSound() {
-        mediaPlayer = new MediaPlayer(sound);
-        mediaPlayer.play();
+    private static AudioClip[] mediaPlayerPool(int poolSize) {
+        final AudioClip[] players = new AudioClip[poolSize];
+        
+        for (int i = 0; i < poolSize; i++) {
+            players[i] = new AudioClip(SOUND);
+        }
+        return players;
     }
     
     @Override
-    public void stopSound(boolean immediate) {
-        mediaPlayer.stop();
+    public synchronized void playSound() {
+        for (int j = 0; j < PLAYER_POOL.length; j++) {
+            if (!PLAYER_POOL[j].isPlaying()) {
+                PLAYER_POOL[j].play();
+                player = j;
+                break;
+            }
+        }
+    }
+    
+    @Override
+    public synchronized void stopSound(boolean immediate) {
+        if (player != -1 && PLAYER_POOL[player].isPlaying()) {
+            PLAYER_POOL[player].stop();            
+        }
     }
 }

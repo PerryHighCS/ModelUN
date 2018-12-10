@@ -25,6 +25,8 @@ public class MapOverlayController {
     private long lastTime;
     private boolean updating;
 
+    private Runnable onCleared;
+        
     public MapOverlayController(Canvas overlay) {
         this.canvas = overlay;
         this.actors = new ArrayList<>();
@@ -74,7 +76,11 @@ public class MapOverlayController {
             gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         }
     }
-
+    
+    public void whenCleared(Runnable callback) {
+        onCleared = callback;
+    }
+    
     private synchronized void updateActors() {
         long now = System.currentTimeMillis();
         long delta = now - lastTime;
@@ -98,6 +104,11 @@ public class MapOverlayController {
             clearAfter = false;
         }
         updating = false;
+        
+        if (onCleared != null && actors.isEmpty()) {
+            onCleared.run();
+            onCleared = null;
+        }
         
         // Draw all remaining actors
         GraphicsContext gc = canvas.getGraphicsContext2D();

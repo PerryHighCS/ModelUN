@@ -4,6 +4,7 @@ import com.hoten.delaunay.geom.Point;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.value.ObservableValue;
@@ -16,6 +17,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -31,7 +33,6 @@ import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import run.mycode.untiednations.competition.model.GameEvent;
 import run.mycode.untiednations.delegates.Delegate;
@@ -41,171 +42,176 @@ import run.mycode.untiednations.competition.ui.game.actors.Explosion;
 import run.mycode.untiednations.competition.ui.game.map.PoliticalMap;
 
 public class GameController {
+
     private static final double FONT_SIZE = 18;
     private static final double LEGEND_FONT_SIZE = 14;
     private static final Font TYPE_FONT = Font.loadFont(GameController.class.getResource("/fonts/NewPress.otf").toExternalForm(), FONT_SIZE);
     private static final Font PRINT_FONT = Font.loadFont(GameController.class.getResource("/fonts/D3Electronism.TTF").toExternalForm(), FONT_SIZE);
     private static final Font MODERN_FONT = Font.loadFont(GameController.class.getResource("/fonts/SourceCodePro-Regular.ttf").toExternalForm(), FONT_SIZE);
     private static final int BASE_YEAR = 1945;
-    
+
     private int year;
     private final int NUM_YEARS = 100;
-    
+
     private List<Delegate> delegates;
-    
+
     private PoliticalMap map;
-    
+
     @FXML
     Button back;
-    
+
     @FXML
     Button forward;
-    
+
     @FXML
     ListView<GameEvent> paperTape;
-    
+
     @FXML
     ListView<DelegateInfo> mapLegend;
-    
+
     public GameController() {
         year = 0;
     }
-    
+
     @FXML
     private Label yearLabel;
-    
+
     @FXML
     private Label statusLabel;
-    
+
     @FXML
     private AnchorPane mapView;
-    
+
     @FXML
     private Canvas mapOverlay;
+
+    @FXML
+    private ProgressBar progress;
     
     @FXML
-    private ProgressBar progress; 
-        
+    private CheckBox autoContinue;
+
     private Competition comp;
-    
+
     private Timeline headlineTimer;
-    
+
     private MapOverlayController overlayController;
-        
-    @FXML
+
+    private boolean closing;
+    private boolean skipping;
     
+    @FXML
     public void initialize() {
         // Preload sounds
         Explosion exp = new Explosion(Point2D.ZERO);
         Bomber bmb = new Bomber();
-        
+
         overlayController = new MapOverlayController(mapOverlay);
-                
+
         paperTape.setCellFactory((ListView<GameEvent> list) -> new GameController.EventCell());
         mapLegend.setCellFactory((ListView<DelegateInfo> list) -> new GameController.DelegateCell());
-        
+
         mapLegend.getSelectionModel().selectedItemProperty().addListener(
-                (ObservableValue<? extends DelegateInfo> ov, 
+                (ObservableValue<? extends DelegateInfo> ov,
                         DelegateInfo oldValue, DelegateInfo newValue) -> {
                     Image img;
-                    
+
                     if (newValue != null) {
-                        img = SwingFXUtils.toFXImage(map.createMap(true, 
-                                                                   newValue.name,
-                                                                   year != 0),
-                                                     null);
-                        
-                        
-                    }
-                    else {
+                        img = SwingFXUtils.toFXImage(map.createMap(true,
+                                newValue.name,
+                                year != 0),
+                                null);
+
+                    } else {
                         img = SwingFXUtils.toFXImage(map.createMap(true, null,
-                                                                   year != 0),
-                                                    null);
+                                year != 0),
+                                null);
                     }
-                    
+
                     BackgroundImage bi = new BackgroundImage(img,
-                                                 BackgroundRepeat.NO_REPEAT,
-                                                 BackgroundRepeat.NO_REPEAT,
-                                                 BackgroundPosition.DEFAULT,
-                                                 BackgroundSize.DEFAULT);
+                            BackgroundRepeat.NO_REPEAT,
+                            BackgroundRepeat.NO_REPEAT,
+                            BackgroundPosition.DEFAULT,
+                            BackgroundSize.DEFAULT);
                     mapView.setBackground(new Background(bi));
-        });
-        
+                });
+
         mapLegend.focusedProperty().addListener(
-                (ObservableValue<? extends Boolean> ov, 
+                (ObservableValue<? extends Boolean> ov,
                         Boolean wasfocused, Boolean isfocused) -> {
                     Image img;
-                    
+
                     if (!isfocused || mapLegend.getSelectionModel().getSelectedItem() == null) {
-                        img = SwingFXUtils.toFXImage(map.createMap(true, null, 
-                                                                   year != 0),
+                        img = SwingFXUtils.toFXImage(map.createMap(true, null,
+                                year != 0),
                                 null);
-                    }
-                    else {
+                    } else {
                         img = SwingFXUtils.toFXImage(map.createMap(true,
-                                                                   mapLegend
-                                                                     .getSelectionModel()
-                                                                     .getSelectedItem()
-                                                                     .name, 
-                                                                   year != 0),
+                                mapLegend
+                                        .getSelectionModel()
+                                        .getSelectedItem().name,
+                                year != 0),
                                 null);
                     }
-                    
+
                     BackgroundImage bi = new BackgroundImage(img,
-                                                 BackgroundRepeat.NO_REPEAT,
-                                                 BackgroundRepeat.NO_REPEAT,
-                                                 BackgroundPosition.DEFAULT,
-                                                 BackgroundSize.DEFAULT);
+                            BackgroundRepeat.NO_REPEAT,
+                            BackgroundRepeat.NO_REPEAT,
+                            BackgroundPosition.DEFAULT,
+                            BackgroundSize.DEFAULT);
                     mapView.setBackground(new Background(bi));
-        });
+                });
     }
-    
+
     public void setDelegates(List<Delegate> delegates) {
         this.delegates = delegates;
         this.comp = new Competition(delegates, NUM_YEARS);
         this.year = 0;
         back.setDisable(true);
-       
+
         List<String> countryNames = delegates.stream().map(d -> d.getCountryName()).collect(Collectors.toList());
-                
-        map = PoliticalMap.createMap(countryNames, (int)mapOverlay.getWidth());
-        
+
+        map = PoliticalMap.createMap(countryNames, (int) mapOverlay.getWidth());
+
         Image img = SwingFXUtils.toFXImage(map.createMap(true, null), null);
         BackgroundImage bi = new BackgroundImage(img,
-                                                 BackgroundRepeat.NO_REPEAT,
-                                                 BackgroundRepeat.NO_REPEAT,
-                                                 BackgroundPosition.DEFAULT,
-                                                 BackgroundSize.DEFAULT);
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.DEFAULT,
+                BackgroundSize.DEFAULT);
         mapView.setBackground(new Background(bi));
-        
+
         showYear(true);
     }
-    
+
     /**
      * Move to the previous year and display the events that occurred
-     * @param event 
+     *
+     * @param event
      */
     @FXML
     public void goBack(ActionEvent event) {
         if (year > 0) {
             year--;
         }
-        
+
         if (year == 0) {
             back.setDisable(true);
         }
         forward.setDisable(false);
-        
+
         showYear(true);
     }
-    
+
     /**
      * Move to the next year and display the events that occurred
-     * @param event 
+     *
+     * @param event
      */
     @FXML
     public void goForward(ActionEvent event) {
-        if (headlineTimer == null) {
+        if (headlineTimer == null || 
+                headlineTimer.getStatus() == Animation.Status.STOPPED) {
             if (year <= NUM_YEARS) {
                 year++;
             }
@@ -213,43 +219,42 @@ public class GameController {
                 forward.setDisable(true);
             }
             back.setDisable(false);
-        
+
             showYear(false);
-        }
-        else {
+        } else {
             showYear(true);
         }
     }
-    
+
     private void showYear(boolean fast) {
         overlayController.clearOverlay();
-        
+
         if (headlineTimer != null) {
+            skipping = true;
             headlineTimer.stop();
-            headlineTimer = null;
+            skipping = false;
         }
-        
+
         yearLabel.setText("- " + (year + BASE_YEAR) + " -");
-        
+
         mapLegend.getSelectionModel().clearSelection();
         Image img;
-        
+
         if (year == 0) {
             img = SwingFXUtils.toFXImage(map.createMap(true, null, false), null);
-        }
-        else {
+        } else {
             img = SwingFXUtils.toFXImage(map.createMap(true, null), null);
         }
-        
+
         BackgroundImage bi = new BackgroundImage(img,
-                                                 BackgroundRepeat.NO_REPEAT,
-                                                 BackgroundRepeat.NO_REPEAT,
-                                                 BackgroundPosition.DEFAULT,
-                                                 BackgroundSize.DEFAULT);
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.DEFAULT,
+                BackgroundSize.DEFAULT);
         mapView.setBackground(new Background(bi));
-        
+
         String statusText;
-        
+
         switch (year) {
             case 0:
             case NUM_YEARS:
@@ -259,205 +264,217 @@ public class GameController {
                 statusText = "Untied Nations simulation in process";
                 break;
         }
-        
+
         statusLabel.setText(statusText);
-        
+
         comp.advanceCompetitionTo(year);
-        
+
         List<GameEvent> events = comp.getEvents(year);
-        
+
         if (fast) {
             showEvents(events);
             updateDelegateList(delegates, year);
             progress.setProgress(1.0);
-        }
-        else {            
+        } else {
             clearEvents();
             headlineTimer = new Timeline(new KeyFrame(
                     Duration.seconds(1),
                     ae -> showNextEvent(events, delegates, year)));
             headlineTimer.setCycleCount(events.size() + 1);
+            headlineTimer.setOnFinished(
+                    (ae) -> {
+                        if (closing || skipping) {
+                            return;
+                        };
+                        if (autoContinue.isSelected()) {
+                            overlayController.whenCleared(() -> {
+                                if (year <= NUM_YEARS) {
+                                    goForward(null);
+                                }
+                            });
+                        }
+                    });
             headlineTimer.play();
         }
     }
-    
+
     public void onClose() {
+        closing = true;
         if (headlineTimer != null) {
             headlineTimer.stop();
-            headlineTimer = null;
         }
         overlayController.clearOverlay();
     }
-    
+
     private void updateDelegateList(List<Delegate> delegates, int year) {
         List<DelegateInfo> dil = new ArrayList<>();
-        
+
         for (Delegate d : delegates) {
             DelegateInfo di = new DelegateInfo();
             di.name = d.getCountryName();
             di.wealth = comp.getWealth(di.name, year);
-                    
+
             dil.add(di);
         }
         mapLegend.setItems(FXCollections.observableArrayList(dil));
     }
-    
+
     private void showEvents(List<GameEvent> events) {
         ObservableList<GameEvent> list = paperTape.getItems();
         list.clear();
-        
+
         // Only show items with a message
         events.stream().filter((e) -> (!e.getAction().text.isEmpty())).forEachOrdered((e) -> {
             list.add(e);
-        });        
+        });
     }
-    
+
     private void clearEvents() {
         ObservableList<GameEvent> list = paperTape.getItems();
         list.clear();
     }
-    
+
     private void showNextEvent(List<GameEvent> events, List<Delegate> delegates, int year) {
         ObservableList<GameEvent> list = paperTape.getItems();
-        
+
         if (list.size() < events.size()) {
-            GameEvent next = events.get(list.size()); 
+            GameEvent next = events.get(list.size());
             list.add(next);
             startAttack(next);
             paperTape.scrollTo(list.size() - 1);
-            progress.setProgress(list.size() / (double)(events.size()));
-        }
-        else {
+            progress.setProgress(list.size() / (double) (events.size()));
+        } else {
             updateDelegateList(delegates, year);
             progress.setProgress(1.0);
-            headlineTimer.stop();
-            headlineTimer = null;
         }
     }
-    
+
     /**
      * Display an attack between countries
+     *
      * @param evt The event that shows the attack that occurred
      */
     private void startAttack(GameEvent evt) {
         GameEvent.Attack attack = evt.getAction().attackDir;
-        
+
         Delegate i = evt.getSource();
         Delegate j = evt.getTarget();
-        
+
         if (j != null) {
-            if (attack == GameEvent.Attack.ONEWAY ||
-                attack == GameEvent.Attack.BOTH) {
+            if (attack == GameEvent.Attack.ONEWAY
+                    || attack == GameEvent.Attack.BOTH) {
                 bomber(i, j);
             }
             if (attack == GameEvent.Attack.BOTH) {
                 bomber(j, i);
             }
-        }
-        else if (attack == GameEvent.Attack.SELF) {            
+        } else if (attack == GameEvent.Attack.SELF) {
             for (int k = 0; k < 10; k++) {
                 Point p = map.getRandomPoint(i.getCountryName());
-                explode(p);
+                explode(p, false);
             }
-            explode(i);
+            explode(i, true);
         }
     }
-    
+
     private void bomber(Delegate i, Delegate j) {
         Point iloc = map.getCapitalLocation(i.getCountryName());
         Point2D start = new Point2D(iloc.x, iloc.y);
-        
+
         Point jloc = map.getRandomPoint(j.getCountryName());
         Point2D end = new Point2D(jloc.x, jloc.y);
 
         Bomber b = new Bomber(start);
         b.moveTo(end);
-        b.moveTime((long)(b.moveDistance() * 15));
+        b.moveTime((long) (b.moveDistance() * 15));
         b.onFinish(() -> {
-            explode(jloc);
+            explode(jloc, true);
             b.moveTo(start);
             b.startMoving();
-            b.onFinish(() -> {b.stopSound(false);
-                              overlayController.removeActor(b);});
+            b.onFinish(() -> {
+                b.stopSound(false);
+                overlayController.removeActor(b);
+            });
         });
         overlayController.addActor(b);
         b.playSound();
         b.startMoving();
     }
-    
-    private void explode(Delegate d) {
+
+    private void explode(Delegate d, boolean playSound) {
         Point loc = map.getCapitalLocation(d.getCountryName());
-    
-        explode(loc);
+
+        explode(loc, playSound);
     }
-    
-    private void explode(Point loc) {
+
+    private void explode(Point loc, boolean playSound) {
         Point2D pos = new Point2D(loc.x, loc.y);
-        
+
         Explosion exp = new Explosion(pos);
         overlayController.addActor(exp);
         exp.onFinish(() -> overlayController.removeActor(exp));
-        exp.playSound();
+        
+        if (playSound) {
+            exp.playSound();
+        }
     }
-    
+
     private class EventCell extends ListCell<GameEvent> {
         //private Text text;
-                     
+
         @Override
         protected void updateItem(GameEvent item, boolean empty) {
             super.updateItem(item, empty);
-            
+
             if (!empty && item != null) {
-                setPrefWidth(paperTape.getWidth()-2);
+                setPrefWidth(paperTape.getWidth() - 2);
                 setText(item.toString().toUpperCase());
                 setWrapText(true);
-                        
+
                 if (year < 34) {
-                    setFont(TYPE_FONT);                
-                }
-                else if (year < 61) {
-                    setFont(PRINT_FONT);                
-                }
-                else {
+                    setFont(TYPE_FONT);
+                } else if (year < 61) {
+                    setFont(PRINT_FONT);
+                } else {
                     setFont(MODERN_FONT);
                 }
-            }
-            else {
+            } else {
                 setText(null);
             }
         }
     }
-    
+
     private class DelegateCell extends ListCell<DelegateInfo> {
+
         @Override
         protected void updateItem(DelegateInfo item, boolean empty) {
             super.updateItem(item, empty);
-            
+
             if (empty || item == null) {
                 setText(null);
                 setGraphic(null);
-            }
-            else {
+            } else {
                 setFont(Font.font(LEGEND_FONT_SIZE));
-                
+
                 String text = item.name + ":  \uD835\uDD7D";
-                
+
                 text += String.format("%,.2f", item.wealth);
-                
+
                 setText(text);
-                            
+
                 java.awt.Color color = map.getColor(item.name);
                 int r = color.getRed();
                 int g = color.getGreen();
                 int b = color.getBlue();
                 Color fxColor = Color.rgb(r, g, b);
-                                
+
                 setBackground(new Background(new BackgroundFill(fxColor, CornerRadii.EMPTY, Insets.EMPTY)));
             }
         }
     }
-    
+
     private static class DelegateInfo {
+
         public String name;
         public double wealth;
     }
