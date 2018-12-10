@@ -36,6 +36,7 @@ import run.mycode.untiednations.competition.model.GameEvent;
 import run.mycode.untiednations.delegates.Delegate;
 import run.mycode.untiednations.competition.model.Competition;
 import run.mycode.untiednations.competition.ui.game.actors.Bomber;
+import run.mycode.untiednations.competition.ui.game.actors.Explosion;
 import run.mycode.untiednations.competition.ui.game.map.PoliticalMap;
 
 public class GameController {
@@ -150,7 +151,7 @@ public class GameController {
                                                  BackgroundPosition.DEFAULT,
                                                  BackgroundSize.DEFAULT);
                     mapView.setBackground(new Background(bi));
-        });        
+        });
     }
     
     public void setDelegates(List<Delegate> delegates) {
@@ -266,7 +267,7 @@ public class GameController {
         else {            
             clearEvents();
             headlineTimer = new Timeline(new KeyFrame(
-                    Duration.seconds(0.5),
+                    Duration.seconds(1),
                     ae -> showNextEvent(events, delegates, year)));
             headlineTimer.setCycleCount(events.size() + 1);
             headlineTimer.play();
@@ -342,7 +343,7 @@ public class GameController {
             }
         }
         else if (attack == GameEvent.Attack.SELF) {
-            bomb(i);
+            explode(i);
         }
     }
     
@@ -356,15 +357,21 @@ public class GameController {
         Bomber b = new Bomber(start);
         b.moveTo(end);
         b.moveTime((long)(b.moveDistance() * 15));
-        b.onFinish(() -> overlayController.removeActor(b));
+        b.onFinish(() -> {
+            explode(j);
+            overlayController.removeActor(b);
+        });
         overlayController.addActor(b);
         b.startMoving();
     }
     
-    private void bomb(Delegate d) {
+    private void explode(Delegate d) {
         Point loc = map.getCapitalLocation(d.getCountryName());
         Point2D pos = new Point2D(loc.x, loc.y);
         
+        Explosion exp = new Explosion(pos);
+        overlayController.addActor(exp);
+        exp.onFinish(() -> overlayController.removeActor(exp));
     }
     
     private class EventCell extends ListCell<GameEvent> {
