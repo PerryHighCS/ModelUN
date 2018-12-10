@@ -10,11 +10,11 @@ import java.util.List;
 import run.mycode.untiednations.delegates.Correspondence;
 import run.mycode.untiednations.delegates.Delegate;
 
-public class TitForTat implements Delegate {
+public class Retributia implements Delegate {
     private int index;
     private List<Integer> enemies;
     
-    public TitForTat() {
+    public Retributia() {
         enemies = new ArrayList<>();
     }
     
@@ -25,7 +25,7 @@ public class TitForTat implements Delegate {
     
     @Override
     public String getCountryName() {
-        return "TitForTat";
+        return "Retributia";
     }
 
     @Override

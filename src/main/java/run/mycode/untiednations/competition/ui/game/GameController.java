@@ -37,6 +37,7 @@ import run.mycode.untiednations.delegates.Delegate;
 import run.mycode.untiednations.competition.model.Competition;
 import run.mycode.untiednations.competition.ui.game.actors.Bomber;
 import run.mycode.untiednations.competition.ui.game.actors.Explosion;
+import run.mycode.untiednations.competition.ui.game.map.Center;
 import run.mycode.untiednations.competition.ui.game.map.PoliticalMap;
 
 public class GameController {
@@ -156,7 +157,7 @@ public class GameController {
     
     public void setDelegates(List<Delegate> delegates) {
         this.delegates = delegates;
-        this.comp = new Competition(delegates);
+        this.comp = new Competition(delegates, NUM_YEARS);
         this.year = 0;
         back.setDisable(true);
        
@@ -216,6 +217,8 @@ public class GameController {
     }
     
     private void showYear(boolean fast) {
+        overlayController.clearOverlay();
+        
         if (headlineTimer != null) {
             headlineTimer.stop();
             headlineTimer = null;
@@ -244,10 +247,8 @@ public class GameController {
         
         switch (year) {
             case 0:
-                statusText = "The Untied Nations is established";
-                break;
             case NUM_YEARS:
-                statusText = "The Untied Nations is disbanded";
+                statusText = "";
                 break;
             default:
                 statusText = "Untied Nations simulation in process";
@@ -257,6 +258,7 @@ public class GameController {
         statusLabel.setText(statusText);
         
         comp.advanceCompetitionTo(year);
+        
         List<GameEvent> events = comp.getEvents(year);
         
         if (fast) {
@@ -272,9 +274,6 @@ public class GameController {
             headlineTimer.setCycleCount(events.size() + 1);
             headlineTimer.play();
         }
-        
-        Delegate i = delegates.get((int)(Math.random() * delegates.size()));
-        Delegate j = i;
     }
     
     private void updateDelegateList(List<Delegate> delegates, int year) {
@@ -342,7 +341,11 @@ public class GameController {
                 bomber(j, i);
             }
         }
-        else if (attack == GameEvent.Attack.SELF) {
+        else if (attack == GameEvent.Attack.SELF) {            
+            for (int k = 0; k < 10; k++) {
+                Point p = map.getRandomPoint(i.getCountryName());
+                explode(p);
+            }
             explode(i);
         }
     }
@@ -351,15 +354,17 @@ public class GameController {
         Point iloc = map.getCapitalLocation(i.getCountryName());
         Point2D start = new Point2D(iloc.x, iloc.y);
         
-        Point jloc = map.getCapitalLocation(j.getCountryName());
+        Point jloc = map.getRandomPoint(j.getCountryName());
         Point2D end = new Point2D(jloc.x, jloc.y);
 
         Bomber b = new Bomber(start);
         b.moveTo(end);
         b.moveTime((long)(b.moveDistance() * 15));
         b.onFinish(() -> {
-            explode(j);
-            overlayController.removeActor(b);
+            explode(jloc);
+            b.moveTo(start);
+            b.startMoving();
+            b.onFinish(() -> overlayController.removeActor(b));
         });
         overlayController.addActor(b);
         b.startMoving();
@@ -367,6 +372,11 @@ public class GameController {
     
     private void explode(Delegate d) {
         Point loc = map.getCapitalLocation(d.getCountryName());
+    
+        explode(loc);
+    }
+    
+    private void explode(Point loc) {
         Point2D pos = new Point2D(loc.x, loc.y);
         
         Explosion exp = new Explosion(pos);

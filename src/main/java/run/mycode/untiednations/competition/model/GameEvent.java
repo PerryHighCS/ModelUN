@@ -4,6 +4,8 @@ import run.mycode.untiednations.delegates.Delegate;
 
 public class GameEvent {
     public static enum Action {
+        START("The Untied Nations is established.", Attack.NONE),
+        FINISH("The Untied Nations is disbanded.", Attack.NONE),
         ATTACK("%s attacked %s", Attack.ONEWAY),
         ATTACK_CONT("%s maintains its attack on %s", Attack.ONEWAY),
         ATTACK_CEASE("%s declares a ceasefire in its conflict with %s", Attack.NONE),
@@ -110,8 +112,11 @@ public class GameEvent {
     }
     
     @Override
-    public String toString() {        
-        if (target == null) {
+    public String toString() {
+        if (source == null) {
+            return act.text;
+        }
+        else if (target == null) {
             return String.format(act.text, source.getCountryName());
         }
         else {

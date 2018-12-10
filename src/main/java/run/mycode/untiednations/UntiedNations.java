@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 import run.mycode.untiednations.delegates.example.GandiLand;
 import run.mycode.untiednations.delegates.example.GenghiStan;
 import run.mycode.untiednations.delegates.example.Providence;
-import run.mycode.untiednations.delegates.example.TitForTat;
+import run.mycode.untiednations.delegates.example.Retributia;
 import run.mycode.untiednations.delegates.Delegate;
 
 
@@ -62,7 +62,7 @@ public class UntiedNations extends Application {
         members.add(new GandiLand());
         members.add(new GenghiStan());
         members.add(new Providence());
-        members.add(new TitForTat());
+        members.add(new Retributia());
         
         return members;
     }

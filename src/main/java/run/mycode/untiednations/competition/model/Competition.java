@@ -19,6 +19,7 @@ public class Competition {
     private final List<Map<String, Double>> wealthHistory;
     private final List<List<GameEvent>> eventHistory;
     private final List<boolean[][]> battleHistory;
+    private final int MAX_ROUND;
     
     private int lastRound;
 
@@ -26,9 +27,11 @@ public class Competition {
      * Enroll a set of countries into a competition
      *
      * @param membershipRoll the set of delegates to add to the ModelUN
-     * Competition
+     *                      Competition
+     * @param numRounds the number of rounds to run in the competition
      */
-    public Competition(Collection<Delegate> membershipRoll) {
+    public Competition(Collection<Delegate> membershipRoll, int numRounds) {
+        this.MAX_ROUND = numRounds;
         this.delegates = membershipRoll.toArray(new Delegate[membershipRoll.size()]);
         this.wealthHistory = new ArrayList<>();
         this.battleHistory = new ArrayList<>();
@@ -61,6 +64,9 @@ public class Competition {
      * @param numRounds the number of rounds to perform
      */
     public void advanceCompetition(int numRounds) {
+        if (lastRound + numRounds > this.MAX_ROUND) {
+            numRounds = this.MAX_ROUND - lastRound;
+        }
         for (int i = 0; i < numRounds; i++) {                       
             doRound();            
             lastRound++; 
@@ -73,7 +79,10 @@ public class Competition {
      * @param round the round number to advance competition to
      */
     public void advanceCompetitionTo(int round) {
-        for (int i = lastRound; i <= round; i++) {                        
+        if (round > this.MAX_ROUND) {
+            round = this.MAX_ROUND;
+        }
+        for (int i = lastRound+1; i <= round; i++) {                        
             doRound();            
             lastRound++;
         }
@@ -82,7 +91,7 @@ public class Competition {
     /**
      * Run the next round of the competition
      */
-    public void doRound() {
+    private void doRound() {
         // Get the current wealth of all nations
         Map<String, Double> wealth = wealthHistory.get(wealthHistory.size() - 1);
         
@@ -138,8 +147,20 @@ public class Competition {
      *              hasn't been run yet, null is returned.
      */
     public List<GameEvent> getEvents(int round) {
-        if (round >= 0 && round < eventHistory.size()) {
+        if (round > 0 && round < eventHistory.size()) {
             return eventHistory.get(round);
+        }
+        else if (round == 0) {
+            // Show the establishment event
+            List<GameEvent> est = new ArrayList<>();
+            est.add(new GameEvent(null, null, GameEvent.Action.START));
+            return est;
+        }
+        else if (round >= this.MAX_ROUND) {
+            // Show the establishment event
+            List<GameEvent> fin = new ArrayList<>();
+            fin.add(new GameEvent(null, null, GameEvent.Action.FINISH));
+            return fin;
         }
         else {
             return null;

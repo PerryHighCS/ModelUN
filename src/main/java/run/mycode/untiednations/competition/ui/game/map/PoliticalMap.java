@@ -190,6 +190,17 @@ public class PoliticalMap {
     }
     
     /**
+     * Get a point inside of a particular country
+     * 
+     * @param country the name of the country
+     * @return A location inside the country
+     */
+    public Point getRandomPoint(String country) {
+        List<Center> land = countryNames.get(country).land;
+        return land.get((int)(Math.random() * land.size())).loc;
+    }
+    
+    /**
      * Get the color assigned to a particular country in the map
      * 
      * @param country the name of the country
