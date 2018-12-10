@@ -7,7 +7,7 @@ import javafx.scene.image.Image;
  *
  * @author dahlem.brian
  */
-public class LinearMover extends Actor {    
+public abstract class LinearMover extends Actor {    
     private Point2D start;
     private Point2D end;
     private Point2D delta;

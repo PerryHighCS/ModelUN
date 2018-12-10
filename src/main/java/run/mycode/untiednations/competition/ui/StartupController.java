@@ -26,6 +26,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
@@ -91,6 +92,8 @@ public class StartupController {
             compWindow.initOwner(frame.getScene().getWindow());
             compWindow.setTitle("Model UntiedNations");
             compWindow.setScene(new Scene(root));
+            compWindow.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, 
+                    ae -> gc.onClose());
             compWindow.showAndWait();
         } catch (IOException e) {
             System.err.println("Could not load competition window.");

@@ -31,6 +31,7 @@ import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import run.mycode.untiednations.competition.model.GameEvent;
 import run.mycode.untiednations.delegates.Delegate;
@@ -42,9 +43,9 @@ import run.mycode.untiednations.competition.ui.game.map.PoliticalMap;
 public class GameController {
     private static final double FONT_SIZE = 18;
     private static final double LEGEND_FONT_SIZE = 14;
-    private static final Font TYPE_FONT = Font.loadFont(GameController.class.getResource("/NewPress.otf").toExternalForm(), FONT_SIZE);
-    private static final Font PRINT_FONT = Font.loadFont(GameController.class.getResource("/D3Electronism.TTF").toExternalForm(), FONT_SIZE);
-    private static final Font MODERN_FONT = Font.loadFont(GameController.class.getResource("/SourceCodePro-Regular.ttf").toExternalForm(), FONT_SIZE);
+    private static final Font TYPE_FONT = Font.loadFont(GameController.class.getResource("/fonts/NewPress.otf").toExternalForm(), FONT_SIZE);
+    private static final Font PRINT_FONT = Font.loadFont(GameController.class.getResource("/fonts/D3Electronism.TTF").toExternalForm(), FONT_SIZE);
+    private static final Font MODERN_FONT = Font.loadFont(GameController.class.getResource("/fonts/SourceCodePro-Regular.ttf").toExternalForm(), FONT_SIZE);
     private static final int BASE_YEAR = 1945;
     
     private int year;
@@ -92,9 +93,14 @@ public class GameController {
     private MapOverlayController overlayController;
         
     @FXML
+    
     public void initialize() {
-        overlayController = new MapOverlayController(mapOverlay);
+        // Preload sounds
+        Explosion exp = new Explosion(Point2D.ZERO);
+        Bomber bmb = new Bomber();
         
+        overlayController = new MapOverlayController(mapOverlay);
+                
         paperTape.setCellFactory((ListView<GameEvent> list) -> new GameController.EventCell());
         mapLegend.setCellFactory((ListView<DelegateInfo> list) -> new GameController.DelegateCell());
         
@@ -275,6 +281,14 @@ public class GameController {
         }
     }
     
+    public void onClose() {
+        if (headlineTimer != null) {
+            headlineTimer.stop();
+            headlineTimer = null;
+        }
+        overlayController.clearOverlay();
+    }
+    
     private void updateDelegateList(List<Delegate> delegates, int year) {
         List<DelegateInfo> dil = new ArrayList<>();
         
@@ -363,9 +377,11 @@ public class GameController {
             explode(jloc);
             b.moveTo(start);
             b.startMoving();
-            b.onFinish(() -> overlayController.removeActor(b));
+            b.onFinish(() -> {b.stopSound(false);
+                              overlayController.removeActor(b);});
         });
         overlayController.addActor(b);
+        b.playSound();
         b.startMoving();
     }
     
@@ -381,6 +397,7 @@ public class GameController {
         Explosion exp = new Explosion(pos);
         overlayController.addActor(exp);
         exp.onFinish(() -> overlayController.removeActor(exp));
+        exp.playSound();
     }
     
     private class EventCell extends ListCell<GameEvent> {

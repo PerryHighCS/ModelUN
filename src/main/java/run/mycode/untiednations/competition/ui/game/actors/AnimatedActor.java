@@ -9,7 +9,7 @@ import javafx.scene.image.Image;
  *
  * @author bdahl
  */
-public class AnimatedActor extends Actor {
+public abstract class AnimatedActor extends Actor {
     private List<Image> frames;
     private long frameTime;
     private long elapsedTime;

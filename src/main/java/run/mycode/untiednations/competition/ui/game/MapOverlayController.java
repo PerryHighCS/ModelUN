@@ -19,7 +19,7 @@ public class MapOverlayController {
     private final List<Actor> actors;
     private final List<Actor> toRemove;
     private final List<Actor> toAdd;
-
+    private boolean clearAfter;
 
     private final Timeline updateTimer;
     private long lastTime;
@@ -64,10 +64,15 @@ public class MapOverlayController {
     }
 
     public synchronized void clearOverlay() {
-        actors.clear();
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
+        if (updating) {
+            clearAfter = true;
+        }
+        else {
+            actors.forEach(a -> a.stopSound(true));
+            actors.clear();
+            GraphicsContext gc = canvas.getGraphicsContext2D();
+            gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        }
     }
 
     private synchronized void updateActors() {
@@ -85,6 +90,13 @@ public class MapOverlayController {
         // If any actors were flagged for addition, add them
         toAdd.forEach(a -> actors.add(a));
         toAdd.clear();
+        
+        // If the overlay should be cleared, do so
+        if (clearAfter) {
+            actors.forEach(a -> a.stopSound(true));
+            actors.clear();
+            clearAfter = false;
+        }
         updating = false;
         
         // Draw all remaining actors

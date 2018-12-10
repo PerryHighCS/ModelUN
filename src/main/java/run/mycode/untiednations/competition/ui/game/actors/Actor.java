@@ -80,4 +80,8 @@ public abstract class Actor {
     }
     
     public abstract void update(long deltaTimeMillis);
+    
+    public abstract void playSound();
+    
+    public abstract void stopSound(boolean immediate);
 }
