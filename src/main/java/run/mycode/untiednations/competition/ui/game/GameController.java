@@ -229,6 +229,8 @@ public class GameController {
     private void showYear(boolean fast) {
         overlayController.clearOverlay();
 
+        if (closing) {return;}
+        
         if (headlineTimer != null) {
             skipping = true;
             headlineTimer.stop();

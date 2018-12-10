@@ -64,7 +64,7 @@
    <right>
       <SplitPane dividerPositions="0.5" maxHeight="600.0" orientation="VERTICAL" prefWidth="300.0" BorderPane.alignment="CENTER">
         <items>
-          <TitledPane fx:id="eventPane" animated="true" text="Register of Events">
+          <TitledPane fx:id="eventPane" animated="true" text="Headlines">
                <content>
                   <VBox>
                      <children>
