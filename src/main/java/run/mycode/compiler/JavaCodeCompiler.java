@@ -63,7 +63,7 @@ public class JavaCodeCompiler {
 
         // create a diagnostic listener for compilation diagnostic message processing on
         // compilation WARNING/ERROR
-        final CompileDiagnosticListener diag = new CompileDiagnosticListener();
+        final CompileErrorReporter diag = new CompileErrorReporter();
         final StandardJavaFileManager stdfileManager = compiler.getStandardFileManager(diag, Locale.ENGLISH, null);
 
         InMemoryJavaFileManager fileManager = new InMemoryJavaFileManager(stdfileManager, classLoader);
