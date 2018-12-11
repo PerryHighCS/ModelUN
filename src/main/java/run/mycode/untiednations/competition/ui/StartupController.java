@@ -3,8 +3,6 @@ package run.mycode.untiednations.competition.ui;
 import java.io.File;
 import run.mycode.untiednations.competition.ui.game.GameController;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -70,7 +68,7 @@ public class StartupController {
                 }
             });
         }
-        
+
         if (!errors.isEmpty()) {
             showDelegateErrors(errors);
         }
@@ -162,7 +160,7 @@ public class StartupController {
         if (diag.hasError()) {
             return new DelegateErrorReport(title, diag.getReport());
         }
-        
+
         try {
             Class<?> compiledClass = classLoader.findClass(title);
 
@@ -206,7 +204,7 @@ public class StartupController {
 
         return null;
     }
-    
+
     private void showDelegateErrors(List<DelegateErrorReport> errors) {
         Parent root;
         try {
@@ -215,18 +213,18 @@ public class StartupController {
             root = fxl.load();
 
             DialogController dc = fxl.<DialogController>getController();
-            
+
             String message = "";
-            
+
             List<ReportItem> errorItems = new ArrayList<>();
-            
-            for (DelegateErrorReport report : errors ) {
+
+            for (DelegateErrorReport report : errors) {
                 if (!message.isEmpty()) {
                     message = message + "\n";
                 }
-                message = message + "Could not load delegate " + 
-                        report.getDelegateName();
-                
+                message = message + "Could not load delegate "
+                        + report.getDelegateName();
+
                 report.getReport().forEach((r) -> {
                     if (r.isError()) {
                         errorItems.add(r);
@@ -241,7 +239,7 @@ public class StartupController {
             dialog.setTitle("Model UntiedNations");
             dialog.setDialogPane(fxl.getRoot());
             dialog.showAndWait();
-            
+
         } catch (IOException e) {
             System.err.println("Could not load error dialog.");
             e.printStackTrace();
