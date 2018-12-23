@@ -7,11 +7,11 @@ import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 
 public class CompileErrorReporter implements DiagnosticListener<JavaFileObject> {
-    private List<ReportItem> report;
+    private final List<ReportItem> report;
     private boolean containsError;
     
     public CompileErrorReporter() {
-        report = new ArrayList<>();        
+        report = new ArrayList<>();
     }
     
     @Override
@@ -30,6 +30,5 @@ public class CompileErrorReporter implements DiagnosticListener<JavaFileObject> 
     
     public boolean hasError() {
         return containsError;
-    }
-    
+    }    
 }
